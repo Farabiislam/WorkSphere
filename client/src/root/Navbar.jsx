@@ -35,37 +35,31 @@ const Navbar = () => {
                         <DropdownMenuTrigger><MenuIcon /></DropdownMenuTrigger>
                         <DropdownMenuContent>
                             <DropdownMenuItem>
-                                <Link to="/">Home</Link>
+                                <NavLink to="/">Home</NavLink>
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                                 {user && <NavLink to="/dashboard">Dashboard</NavLink>}
                             </DropdownMenuItem>
                             <DropdownMenuItem>
-                                <Link to="/contact">Contact Us</Link>
+                                <NavLink to="/contact">Contact Us</NavLink>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem></DropdownMenuItem>
-                                {user ? (<>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem><Button variant="destructive">Logout</Button></DropdownMenuItem>
-                                    </>) :
-                                    (
-                                    <div className="custom-btn">
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem>
-                                            <Link to="/login" >
-                                                <Button variant="primary">Login</Button>
+                            {!user && (
+                                <div className="custom-btn">
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem>
+                                        <Link to="/login" >
+                                            <Button variant="primary">Login</Button>
                                             </Link>
                                             <Link to="/register">
                                                 <Button variant="secondary">Register</Button>
                                             </Link>
                                         </DropdownMenuItem>
+                                    </div>
+                                )
+                            }
 
-                                            
-                                        </div>
-                                    )
-                                }
-                            
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -83,21 +77,33 @@ const Navbar = () => {
                         {user ?
                             (<>
                                 <Tooltip>
-                                    <TooltipTrigger>
-                                        <Avatar className="border-3 border-primary rounded-full">
-                                            <AvatarImage src="https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg"
-                                                alt="User Avatar"
-                                                className="object-cover"
-                                            />
-                                            <AvatarFallback>U</AvatarFallback>
-                                        </Avatar>
-                                    </TooltipTrigger>
+                                    
+                                        <DropdownMenu>
+                                        <DropdownMenuTrigger>
+                                            <TooltipTrigger>
+                                                <Avatar className="border-3 border-primary rounded-full">
+                                                    <AvatarImage src="https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg"
+                                                        alt="User Avatar"
+                                                        className="object-cover"/>
+                                                    <AvatarFallback>U</AvatarFallback>
+                                                </Avatar>
+                                            </TooltipTrigger>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent>
+                                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem>Profile</DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                <Button variant="destructive">Logout</Button>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     <TooltipContent>
                                         <p>username</p>
                                     </TooltipContent>
                                 </Tooltip>
 
-                                <Button variant="destructive" className="hidden sm:block">Logout</Button>
+                               
                             </>) :
                             (<>
                                 {location.pathname === '/login' ? (
