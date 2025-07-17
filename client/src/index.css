@@ -2,8 +2,6 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
-@plugin "flowbite-react/plugin/tailwindcss";
-@source "../.flowbite-react/class-list.json";
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -118,5 +116,25 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+li a.active {
+  text-align: center;
+  padding: 4px 16px;
+  border: 1px solid var(--primary);
+}
+@media (max-width: 375px) {
+  .custom-auth-btn {
+    display: none !important;
+  }
+}
+.custom-btn {
+  display: none !important;
+}
+
+@media (max-width: 375px) {
+  .custom-btn {
+    display: inline-block !important;
   }
 }

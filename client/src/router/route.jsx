@@ -3,27 +3,31 @@ import MainLayout from "../root/MainLayout";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import ContactUs from "../pages/ContactUs";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />,
-
+    Component: MainLayout,
+    hydrateFallbackElement: <div>Loading...</div>,
     children: [
       {
         path: "/",
         element: <Home />,
+      }, {
+        path: "/login",
+        element: <Login />,
       },
+      {
+        path: '/register',
+        element: <Register />
+      }, {
+        path: '/contact',
+        element:<ContactUs/>
+      }
     ],
   },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path:'/register',
-    element:<Register/>
-  }
+  
 ]);
 
 export default router;
