@@ -51,13 +51,13 @@ const Navbar = () => {
                                     <DropdownMenuItem>
                                         <Link to="/login" >
                                             <Button variant="primary">Login</Button>
-                                            </Link>
-                                            <Link to="/register">
-                                                <Button variant="secondary">Register</Button>
-                                            </Link>
-                                        </DropdownMenuItem>
-                                    </div>
-                                )
+                                        </Link>
+                                        <Link to="/register">
+                                            <Button variant="secondary">Register</Button>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                </div>
+                            )
                             }
 
                         </DropdownMenuContent>
@@ -77,33 +77,30 @@ const Navbar = () => {
                         {user ?
                             (<>
                                 <Tooltip>
-                                    
-                                        <DropdownMenu>
+                                    <DropdownMenu>
                                         <DropdownMenuTrigger>
                                             <TooltipTrigger>
                                                 <Avatar className="border-3 border-primary rounded-full">
                                                     <AvatarImage src="https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg"
                                                         alt="User Avatar"
-                                                        className="object-cover"/>
+                                                        className="object-cover" />
                                                     <AvatarFallback>U</AvatarFallback>
                                                 </Avatar>
                                             </TooltipTrigger>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent>
-                                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem>Profile</DropdownMenuItem>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem>Profile</DropdownMenuItem>
                                             <DropdownMenuItem>
                                                 <Button variant="destructive">Logout</Button>
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                     <TooltipContent>
                                         <p>username</p>
                                     </TooltipContent>
                                 </Tooltip>
-
-                               
                             </>) :
                             (<>
                                 {location.pathname === '/login' ? (
@@ -121,9 +118,7 @@ const Navbar = () => {
                                     </>
                                 )}
                             </>)
-
                         }
-
                     </NavigationMenuList>
                 </NavigationMenu>
             </header>
