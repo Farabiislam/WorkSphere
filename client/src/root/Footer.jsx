@@ -9,11 +9,11 @@ const Footer = () => {
                     <h3 className="text-xl font-bold">Workey</h3>
                     
                 </div>
-                <p className="text-xs">
+                <p className="text-xs mb-3 md:mb-0">
                         &copy; {new Date().getFullYear()} Workey. All rights reserved.
                     </p>
                 {/* Navigation Links */}
-                <ul className="flex space-x-4">
+                <ul className="flex space-x-4 ">
                     <li>
                         <a href="#" className="hover:underline text-sm">
                             About
