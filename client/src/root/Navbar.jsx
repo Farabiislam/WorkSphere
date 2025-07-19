@@ -25,7 +25,7 @@ import { MenuIcon } from 'lucide-react';
 
 const Navbar = () => {
     const location = useLocation()
-    const user = true;
+    const user = false;
     return (
         <div className='w-full shadow'>
             <header className="w-11/12 mx-auto py-4 sm:px-4 flex justify-between items-center">
