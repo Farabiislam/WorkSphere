@@ -12,6 +12,7 @@ import Header from "../components/Home/Header";
 import Solutions from "../components/Home/Solutions";
 import Selection from "../components/Home/Selection";
 import ClientSection from "../components/Home/ClientSection";
+import Banner from "../components/Home/Banner";
 
 const Home = () => {
   return (
@@ -19,7 +20,8 @@ const Home = () => {
      <Header/>
       <Solutions />
       <Selection />
-      <ClientSection/>
+      <ClientSection />
+      <Banner/>
     </div>
   );
 };
