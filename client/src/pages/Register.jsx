@@ -47,8 +47,11 @@ const Register = () => {
         setIsUploading(true);
         try {
             const url = await uploadToCloudinary(file);
-            setImageUrl(url);
-            console.log("Image uploaded successfully!");
+            if (url) {
+                setImageUrl(url);
+                console.log("Image uploaded successfully!");
+            }
+
         } catch (err) {
             console.log("Upload failed");
             console.error(err);
@@ -235,8 +238,6 @@ const Register = () => {
                                         </FormItem>
                                     )}
                                 />
-
-
                             </div>
 
                             {/* Action Buttons */}

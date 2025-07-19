@@ -22,12 +22,13 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { MenuIcon } from 'lucide-react';
+import { DropdownMenuPortal, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '../components/ui/dropdown-menu';
 
 const Navbar = () => {
     const location = useLocation()
-    const user = false;
+    const user = true;
     return (
-        <div className='w-full shadow'>
+        <div className='w-full shadow-md shadow-secondary'>
             <header className="w-11/12 mx-auto py-4 sm:px-4 flex justify-between items-center">
                 {/* Dropdown Menu for smaller screens */}
                 <div className='sm:hidden'>
@@ -37,9 +38,26 @@ const Navbar = () => {
                             <DropdownMenuItem>
                                 <NavLink to="/">Home</NavLink>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                {user && <NavLink to="/dashboard">Dashboard</NavLink>}
-                            </DropdownMenuItem>
+                            {user && (<DropdownMenuSub>
+                                <div className='flex'><NavLink to="/dashboard"><DropdownMenuItem>Dashboard</DropdownMenuItem></NavLink>{location.pathname === '/dashboard' && <DropdownMenuSubTrigger></DropdownMenuSubTrigger>}</div>
+                                <DropdownMenuPortal>
+                                    <DropdownMenuSubContent>
+                                        {
+                                            location.pathname === '/dashboard' && (
+                                                <>
+                                                    <DropdownMenuItem> <NavLink to="/employees"  >All Employee List</NavLink></DropdownMenuItem>
+                                                    <DropdownMenuItem><NavLink to="/payroll">Payroll</NavLink></DropdownMenuItem>
+                                                    <DropdownMenuItem><NavLink to="/employee-list">Employee List</NavLink></DropdownMenuItem>
+                                                    <DropdownMenuItem><NavLink to="/work-progress">Work Progress</NavLink></DropdownMenuItem>
+                                                    <DropdownMenuItem><NavLink to="/worksheet">Work Sheet</NavLink></DropdownMenuItem>
+                                                    <DropdownMenuItem><NavLink to="/payment-history">Payment History</NavLink></DropdownMenuItem>
+                                                </>
+                                            )
+                                        }
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuPortal>
+                            </DropdownMenuSub>)}
+
                             <DropdownMenuItem>
                                 <NavLink to="/contact">Contact Us</NavLink>
                             </DropdownMenuItem>
