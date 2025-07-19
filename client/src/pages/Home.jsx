@@ -10,12 +10,14 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import Header from "../components/Home/Header";
 import Solutions from "../components/Home/Solutions";
+import Selection from "../components/Home/Selection";
 
 const Home = () => {
   return (
     <div className="">
      <Header/>
-     <Solutions/>
+      <Solutions />
+      <Selection/>
     </div>
   );
 };
