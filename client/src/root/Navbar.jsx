@@ -36,7 +36,7 @@ const Navbar = () => {
         logout().then(() => {
             // Sign-out successful.
             // console.log("logged out")
-           // toast.success("Logged Out Sucessful");
+            // toast.success("Logged Out Sucessful");
 
 
         }).catch((error) => {
@@ -52,16 +52,16 @@ const Navbar = () => {
             <header className="w-11/12 mx-auto py-4 sm:px-4 flex justify-between items-center">
                 {/* Dropdown Menu for smaller screens */}
                 <div className='sm:hidden'>
-                    <DropdownMenu>
+                    <DropdownMenu >
                         <DropdownMenuTrigger><MenuIcon /></DropdownMenuTrigger>
-                        <DropdownMenuContent>
+                        <DropdownMenuContent className="sm:hidden">
                             <DropdownMenuItem>
                                 <NavLink to="/">Home</NavLink>
                             </DropdownMenuItem>
                             {user && (<DropdownMenuSub>
                                 <div className='flex'><NavLink to="/dashboard"><DropdownMenuItem>Dashboard</DropdownMenuItem></NavLink>{location.pathname === '/dashboard' && <DropdownMenuSubTrigger></DropdownMenuSubTrigger>}</div>
                                 <DropdownMenuPortal>
-                                    <DropdownMenuSubContent>
+                                    <DropdownMenuSubContent className={"sm:hidden"}>
                                         {
                                             location.pathname === '/dashboard' && (
                                                 <>
@@ -114,31 +114,33 @@ const Navbar = () => {
                         <NavigationMenuItem><ModeToggle /></NavigationMenuItem>
                         {user ?
                             (<>
-                                <Tooltip>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger>
+
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger>
+                                        <Tooltip>
                                             <TooltipTrigger>
                                                 <Avatar className="border-3 border-primary rounded-full">
-                                                    <AvatarImage src="https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg"
+                                                    <AvatarImage src={user.photoURL}
                                                         alt="User Avatar"
                                                         className="object-cover" />
                                                     <AvatarFallback>U</AvatarFallback>
                                                 </Avatar>
                                             </TooltipTrigger>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent>
-                                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem>Profile</DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                <Button onClick={handleLogout} variant="destructive">Logout</Button>
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                    <TooltipContent>
-                                        <p>username</p>
-                                    </TooltipContent>
-                                </Tooltip>
+                                            <TooltipContent>
+                                                <p>{user.displayName}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem>Profile</DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <Button onClick={handleLogout} variant="destructive">Logout</Button>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+
                             </>) :
                             (<>
                                 {location.pathname === '/login' ? (

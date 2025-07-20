@@ -7,6 +7,7 @@ import ContactUs from "../pages/ContactUs";
 import Dashboard from "../pages/Dashboard";
 import Error404 from "../pages/Error404";
 import PrivateRoute from "./PrivateRoute";
+import Profile from "../pages/Profile";
 
 const router = createBrowserRouter([
   {
@@ -35,7 +36,38 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element:<PrivateRoute><Dashboard /></PrivateRoute>,
+    element: <PrivateRoute><Dashboard /></PrivateRoute>,
+    children: [
+      {
+        index: true,
+        path:'/dashboard',
+        element: <div className="p-10 text-center">Welcome to the Dashboard</div>
+      },
+      {
+        path: '/dashboard/employees',
+        element: <div>All Employee List</div>
+      },
+      {
+        path: '/dashboard/payroll',
+        element: <div>Payroll</div>
+      },
+      {
+        path: '/dashboard/employee-list',
+        element: <div>Employee List</div>
+      },
+      {
+        path: '/dashboard/work-progress',
+        element: <div>Work Progress</div>
+      },
+      {
+        path: '/dashboard/worksheet',
+        element: <div>Work Sheet</div>
+      },
+      {
+        path: '/dashboard/payment-history',
+        element: <div>Payment History</div>
+      }
+    ]
 
   },
   {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from 'react-router';
+import { Link, Navigate } from 'react-router';
+import { AuthContext } from '../context/AuthContext';
 
 const loginSchema = z.object({
     email: z.string().min(1, "Email is required").email("Invalid email"),
@@ -17,6 +18,7 @@ const loginSchema = z.object({
 });
 
 const Login = () => {
+    const { setUser, loginUser, user, loading, loginWithGoogle } = use(AuthContext)
     const {
         register,
         handleSubmit,
@@ -25,9 +27,30 @@ const Login = () => {
         resolver: zodResolver(loginSchema),
     });
 
+
+    if (loading) {
+        return <div className="min-h-screen flex justify-center items-center flex-col">
+            Loading...
+            <progress className="progress w-56"></progress>
+        </div>;
+    }
+    if (user) {
+        return <Navigate to={"/dashboard"} replace />
+    }
+
     const onSubmit = (data) => {
         console.log(data);
+        loginUser(data.email, data.password)
+            .then((result) => {
+                const userr = result.user;
+                console.log("firebase User logged in successfully:", userr);
+                setUser(userr);
+            })
+            .catch((error) => {
+                console.error("Error logging in:", error);
+            });
     };
+
     const handleGoogleLogin = () => {
         // Use Firebase Auth
         console.log("Logging in with Google...");
