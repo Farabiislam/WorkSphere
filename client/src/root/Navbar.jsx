@@ -36,13 +36,13 @@ const Navbar = () => {
         logout().then(() => {
             // Sign-out successful.
             // console.log("logged out")
-            toast.success("Logged Out Sucessful");
+           // toast.success("Logged Out Sucessful");
 
 
         }).catch((error) => {
             //
             // console.log("An error happened.", error)
-            toast.error(error);
+            //toast.error(error);
 
         });
 
