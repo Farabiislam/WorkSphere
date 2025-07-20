@@ -58,7 +58,11 @@ const Solutions = () => {
       })
     return (
       <div className="py-20">
-        <div className=" flex flex-col mb-15 justify-center items-center ">
+        <div
+          data-aos="zoom-in"
+          data-aos-delay="500"
+          className=" flex flex-col mb-15 justify-center items-center "
+        >
           <h1 className="text-3xl font-bold mb-5">
             Comprehensive HR Solutions
           </h1>
@@ -71,7 +75,7 @@ const Solutions = () => {
           {features.map((feature, index) => (
             <Card
               key={index}
-              data-aos="zoom-in"
+              data-aos="fade-up"
               data-aos-delay="500"
               data-aos-anchor-placement="top-bottom"
             >

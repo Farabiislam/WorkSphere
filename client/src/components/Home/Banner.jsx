@@ -17,7 +17,7 @@ const Banner = () => {
       <div
         data-aos="fade-up"
         data-aos-easing="ease-in-sine"
-        data-aos-delay="200"
+        data-aos-delay="100"
         className="max-w-2xl mx-auto"
       >
         <h2 className="text-3xl font-bold mb-4">
