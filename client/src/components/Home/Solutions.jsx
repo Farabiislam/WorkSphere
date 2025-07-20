@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Card,
   CardAction,
@@ -16,6 +16,9 @@ import {
   BarChart2,
   Users,
 } from "lucide-react";
+
+import AOS from "aos";
+import "aos/dist/aos.css";
 const features = [
   { 
     icon: <Users className="text-white w-10 h-10 bg-blue-500 p-2 rounded-2xl text-center" />,
@@ -50,24 +53,34 @@ const features = [
 ];
 
 const Solutions = () => {
+      useEffect(()=>{
+          AOS.init({duration:"1000"});
+      })
     return (
       <div className="py-20">
         <div className=" flex flex-col mb-15 justify-center items-center ">
-          <h1 className='text-3xl font-bold mb-5' >Comprehensive HR Solutions</h1>
-          <p className='text-muted-foreground'>
+          <h1 className="text-3xl font-bold mb-5">
+            Comprehensive HR Solutions
+          </h1>
+          <p className="text-muted-foreground">
             Discover powerful features designed to streamline your workforce
             management and drive organizational success.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {features.map((feature, index) => (
-            <Card key={index}>
+            <Card
+              key={index}
+              data-aos="zoom-in"
+              data-aos-delay="500"
+              data-aos-anchor-placement="top-bottom"
+            >
               <CardHeader>
-              <div className='rounded-2xl mb-3'>{feature.icon}</div>
+                <div className="rounded-2xl mb-3">{feature.icon}</div>
                 <CardTitle>{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className='text-muted-foreground'>{feature.desc}</p>
+                <p className="text-muted-foreground">{feature.desc}</p>
               </CardContent>
             </Card>
           ))}
