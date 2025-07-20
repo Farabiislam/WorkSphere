@@ -106,7 +106,7 @@ const Register = () => {
                     // toast.success("sucessfully Registered! ")
 
                 }).catch((error) => {
-                    //  toast.error(error)
+                    // toast.error(error)
                 })
 
                 // console.log(user)
