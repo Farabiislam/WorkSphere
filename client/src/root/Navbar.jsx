@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Button } from "@/components/ui/button";
 import {
     NavigationMenu,
@@ -23,10 +23,30 @@ import {
 } from "@/components/ui/tooltip"
 import { MenuIcon } from 'lucide-react';
 import { DropdownMenuPortal, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '../components/ui/dropdown-menu';
+import { AuthContext } from '../context/AuthContext';
+
+
 
 const Navbar = () => {
+    const { user, logout, loading } = useContext(AuthContext)
     const location = useLocation()
-    const user = true;
+
+
+    const handleLogout = function () {
+        logout().then(() => {
+            // Sign-out successful.
+            // console.log("logged out")
+            toast.success("Logged Out Sucessful");
+
+
+        }).catch((error) => {
+            //
+            // console.log("An error happened.", error)
+            toast.error(error);
+
+        });
+
+    }
     return (
         <div className='w-full shadow-md shadow-secondary'>
             <header className="w-11/12 mx-auto py-4 sm:px-4 flex justify-between items-center">
@@ -111,7 +131,7 @@ const Navbar = () => {
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem>Profile</DropdownMenuItem>
                                             <DropdownMenuItem>
-                                                <Button variant="destructive">Logout</Button>
+                                                <Button onClick={handleLogout} variant="destructive">Logout</Button>
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>

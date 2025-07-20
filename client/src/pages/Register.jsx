@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from "zod";
@@ -9,6 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { uploadToCloudinary } from '../utils/uploadToCloudinary';
+import { AuthContext } from '../context/AuthContext';
+import axios from 'axios';
+import { Navigate } from 'react-router';
+
 
 
 const registerSchema = z.object({
@@ -16,14 +20,15 @@ const registerSchema = z.object({
     emailAddress: z.string().email("Invalid email address").min(1, "Email Address is required"),
     phoneNumber: z.string().min(1, "Phone Number is required"),
     role: z.string().min(1, "Role is required"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
     bankAccountNumber: z.string().min(1, "Bank Account Number is required"),
     monthlySalary: z.number().min(0, "Salary must be non-negative"),
     designation: z.string().min(1, "Designation is required"),
-    profilePhoto: z.string().optional(),
-    roleBasedAccess: z.boolean().default(false),
+    profilePhoto: z.string().min(1, "Profile Photo is required"),
 });
 
 const Register = () => {
+    const { createUser, setUser, user, loading, updateUser } = use(AuthContext)
     const [imageUrl, setImageUrl] = useState("");
     const [isUploading, setIsUploading] = useState(false);
     const form = useForm({
@@ -33,13 +38,20 @@ const Register = () => {
             emailAddress: "",
             phoneNumber: "",
             role: "",
+            password: "",
             bankAccountNumber: "",
             monthlySalary: 0,
             designation: "",
-            profilePhoto: null,
-            roleBasedAccess: false,
+            profilePhoto: imageUrl,
+            created_at: new Date().toISOString()
         },
     });
+    if (loading) {
+        return <div className="min-h-screen flex justify-center items-center flex-col">Loading... <progress className="progress w-56"></progress></div>;
+    }
+    if (user) {
+        return <Navigate to={"/dashboard"} replace />
+    }
     const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -49,6 +61,7 @@ const Register = () => {
             const url = await uploadToCloudinary(file);
             if (url) {
                 setImageUrl(url);
+                form.setValue("profilePhoto", url);
                 console.log("Image uploaded successfully!");
             }
 
@@ -61,13 +74,49 @@ const Register = () => {
     };
 
     const onSubmit = async (data) => {
-        if (!imageUrl) {
-            console.log("Please wait for image upload or upload one first.");
-            return;
-        }
-        data.profilePhoto = imageUrl; // Set the uploaded image URL
+
+        data.profilePhoto = imageUrl;
         console.log("Form data:", data);
-        // Handle form submission, e.g., send to API
+
+        createUser(data.emailAddress, data.password)
+            .then(async (result) => {
+                const userr = result.user;
+                console.log("firebase User created successfully:", userr);
+                const user_registrationData = {
+                    fullName: data.fullName,
+                    emailAddress: userr.email,
+                    phoneNumber: data.phoneNumber,
+                    role: data.role,
+                    bankAccountNumber: data.bankAccountNumber,
+                    monthlySalary: data.monthlySalary,
+                    designation: data.designation,
+                    profilePhoto: data.profilePhoto,
+                    created_at: new Date().toISOString()
+                };
+                const registeredUser = await axios.post(`${import.meta.env.VITE_API_URL}/register`, user_registrationData);
+                console.log("User registered on mongodb successfully:", registeredUser);
+                updateUser(data.fullName, data.profilePhoto).then(() => {
+                    // Reload user to get updated data
+                    auth.currentUser.reload();
+                }).then(() => {
+                    console.log(userr)
+                    //toast.success("sucessfully Registered! ")
+                    setUser({ ...auth.currentUser });
+
+                    // toast.success("sucessfully Registered! ")
+
+                }).catch((error) => {
+                    //  toast.error(error)
+                })
+
+                // console.log(user)
+            }).catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // console.log(errorCode,errorMessage)
+                // ..
+                //toast.error(errorMessage)
+            });
     };
     return (
         <div className="flex items-center justify-center p-4">
@@ -121,6 +170,20 @@ const Register = () => {
                                             <FormLabel>Phone Number *</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="+1 (555) 123-4567" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                {/* Password */}
+                                <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Password *</FormLabel>
+                                            <FormControl>
+                                                <Input type="password" placeholder="Enter your password" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -242,7 +305,7 @@ const Register = () => {
 
                             {/* Action Buttons */}
                             <div className="flex justify-end space-x-4 pt-4">
-                                <Button type="button" variant="outline" onClick={() => { form.reset(); setImageUrl(null); }}>
+                                <Button type="button" variant="outline" onClick={() => { form.reset(); setImageUrl(""); }}>
                                     Cancel
                                 </Button>
                                 <Button type="submit">
