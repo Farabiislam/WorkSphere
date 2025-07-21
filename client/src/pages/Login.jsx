@@ -26,9 +26,8 @@ const Login = () => {
     } = useForm({
         resolver: zodResolver(loginSchema),
     });
-
-
     if (loading) {
+        console.log("from login page")
         return <div className="min-h-screen flex justify-center items-center flex-col">
             Loading...
             <progress className="progress w-56"></progress>

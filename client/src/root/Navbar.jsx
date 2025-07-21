@@ -28,7 +28,7 @@ import { AuthContext } from '../context/AuthContext';
 
 
 const Navbar = () => {
-    const { user, logout, loading,role } = useContext(AuthContext)
+    const { user, logout, loading, role } = useContext(AuthContext)
     const location = useLocation()
 
 
@@ -142,21 +142,22 @@ const Navbar = () => {
                             (<>
 
                                 <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Tooltip>
-                                            <TooltipTrigger>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <DropdownMenuTrigger asChild>
                                                 <Avatar className="border-3 border-primary rounded-full">
                                                     <AvatarImage src={user.photoURL}
                                                         alt="User Avatar"
                                                         className="object-cover" />
                                                     <AvatarFallback>U</AvatarFallback>
                                                 </Avatar>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>{user.displayName}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </DropdownMenuTrigger>
+                                            </DropdownMenuTrigger>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>{user.displayName}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+
                                     <DropdownMenuContent>
                                         <DropdownMenuLabel>My Account</DropdownMenuLabel>
                                         <DropdownMenuSeparator />

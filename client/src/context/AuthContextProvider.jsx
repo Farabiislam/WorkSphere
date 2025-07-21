@@ -60,7 +60,8 @@ const AuthContextProvider = ({ children }) => {
         loginUser,
         logout,
         role: roleData,
-        loading: loading || roleLoading,
+        loading: loading,
+        roleLoading,
         updateUser,
         // resetPassword,
         loginWithGoogle

@@ -9,6 +9,7 @@ const PrivateRoute = ({ children }) => {
     const location = useLocation()
 
     if (loading) {
+        console.log("from private route")
         return <div className="min-h-screen flex justify-center items-center flex-col">
             Loading...
             <progress className="progress w-56"></progress>
