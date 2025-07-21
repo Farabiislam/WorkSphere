@@ -38,11 +38,7 @@ const router = createBrowserRouter([
     path: "/dashboard",
     element: <PrivateRoute><Dashboard /></PrivateRoute>,
     children: [
-      {
-        index: true,
-        path:'/dashboard',
-        element: <div className="p-10 text-center">Welcome to the Dashboard</div>
-      },
+      
       {
         path: '/dashboard/employees',
         element: <div>All Employee List</div>

@@ -3,7 +3,9 @@ import { auth } from '../firebase/firebase.config'
 import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from 'firebase/auth'
 import { GoogleAuthProvider } from "firebase/auth";
 import { AuthContext } from './AuthContext';
-
+import {
+    useQuery
+} from '@tanstack/react-query'
 
 
 const AuthContextProvider = ({ children }) => {
@@ -29,6 +31,8 @@ const AuthContextProvider = ({ children }) => {
     const logout = () => {
         return signOut(auth);
     }
+    
+   
 
     useEffect(() => {
         const observer = onAuthStateChanged(auth, (currentUser) => {
@@ -39,6 +43,15 @@ const AuthContextProvider = ({ children }) => {
             observer();
         }
     }, [])
+    const { data: roleData, isPending: roleLoading } = useQuery({
+        queryKey: ['role', user?.email],
+        enabled: !!user?.email, // only fetch when email is available
+        queryFn: async () => {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/user-role?email=${user.email}`)
+            const data = await res.json()
+            return data.role
+        },
+    })
 
     const data = {
         user,
@@ -46,7 +59,8 @@ const AuthContextProvider = ({ children }) => {
         createUser,
         loginUser,
         logout,
-        loading,
+        role: roleData,
+        loading: loading || roleLoading,
         updateUser,
         // resetPassword,
         loginWithGoogle

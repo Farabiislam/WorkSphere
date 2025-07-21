@@ -28,7 +28,7 @@ import { AuthContext } from '../context/AuthContext';
 
 
 const Navbar = () => {
-    const { user, logout, loading } = useContext(AuthContext)
+    const { user, logout, loading,role } = useContext(AuthContext)
     const location = useLocation()
 
 
@@ -53,24 +53,50 @@ const Navbar = () => {
                 {/* Dropdown Menu for smaller screens */}
                 <div className='sm:hidden'>
                     <DropdownMenu >
-                        <DropdownMenuTrigger><MenuIcon /></DropdownMenuTrigger>
+                        <DropdownMenuTrigger asChild><MenuIcon /></DropdownMenuTrigger>
                         <DropdownMenuContent className="sm:hidden">
                             <DropdownMenuItem>
                                 <NavLink to="/">Home</NavLink>
                             </DropdownMenuItem>
                             {user && (<DropdownMenuSub>
-                                <div className='flex'><NavLink to="/dashboard"><DropdownMenuItem>Dashboard</DropdownMenuItem></NavLink>{location.pathname === '/dashboard' && <DropdownMenuSubTrigger></DropdownMenuSubTrigger>}</div>
+                                <div className='flex'><NavLink to="/dashboard"><DropdownMenuItem>Dashboard</DropdownMenuItem></NavLink>{location.pathname.startsWith('/dashboard') && <DropdownMenuSubTrigger></DropdownMenuSubTrigger>}</div>
                                 <DropdownMenuPortal>
                                     <DropdownMenuSubContent className={"sm:hidden"}>
                                         {
-                                            location.pathname === '/dashboard' && (
+                                            location.pathname.startsWith('/dashboard') && (
                                                 <>
-                                                    <DropdownMenuItem> <NavLink to="/employees"  >All Employee List</NavLink></DropdownMenuItem>
-                                                    <DropdownMenuItem><NavLink to="/payroll">Payroll</NavLink></DropdownMenuItem>
-                                                    <DropdownMenuItem><NavLink to="/employee-list">Employee List</NavLink></DropdownMenuItem>
-                                                    <DropdownMenuItem><NavLink to="/work-progress">Work Progress</NavLink></DropdownMenuItem>
-                                                    <DropdownMenuItem><NavLink to="/worksheet">Work Sheet</NavLink></DropdownMenuItem>
-                                                    <DropdownMenuItem><NavLink to="/payment-history">Payment History</NavLink></DropdownMenuItem>
+                                                    {role === 'admin' && (
+                                                        <>
+                                                            <DropdownMenuItem>
+                                                                <NavLink to="/dashboard/employees">All Employee List</NavLink>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <NavLink to="/dashboard/payroll">Payroll</NavLink>
+                                                            </DropdownMenuItem>
+                                                        </>
+                                                    )}
+
+                                                    {role === 'hr' && (
+                                                        <>
+                                                            <DropdownMenuItem>
+                                                                <NavLink to="/dashboard/employee-list">Employee List</NavLink>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <NavLink to="/dashboard/work-progress">Work Progress</NavLink>
+                                                            </DropdownMenuItem>
+                                                        </>
+                                                    )}
+
+                                                    {role === 'employee' && (
+                                                        <>
+                                                            <DropdownMenuItem>
+                                                                <NavLink to="/dashboard/worksheet">Work Sheet</NavLink>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <NavLink to="/dashboard/payment-history">Payment History</NavLink>
+                                                            </DropdownMenuItem>
+                                                        </>
+                                                    )}
                                                 </>
                                             )
                                         }
@@ -116,7 +142,7 @@ const Navbar = () => {
                             (<>
 
                                 <DropdownMenu>
-                                    <DropdownMenuTrigger>
+                                    <DropdownMenuTrigger asChild>
                                         <Tooltip>
                                             <TooltipTrigger>
                                                 <Avatar className="border-3 border-primary rounded-full">

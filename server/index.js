@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
         const database = client.db("emp-db");
         const employeesCollection = database.collection("users");
 
@@ -31,6 +31,16 @@ async function run() {
             const user = req.body;
             const result = await employeesCollection.insertOne(user);
             res.send(result);
+        })
+        app.get('/user-role', async (req, res) => {
+            const email = req.query.email;
+            const query = { emailAddress: email };
+            const user = await employeesCollection.findOne(query);
+            if (user) {
+                res.send({ role: user.role });
+            } else {
+                res.status(404).send({ message: "User not found" });
+            }
         })
 
 
