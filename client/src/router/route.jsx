@@ -8,12 +8,12 @@ import Dashboard from "../pages/Dashboard";
 import Error404 from "../pages/Error404";
 import PrivateRoute from "./PrivateRoute";
 import Profile from "../pages/Profile";
-import AllEmployee from "../pages/AllEmployee";
-import Payroll from "../pages/Payroll";
-import EmployeeList from "../pages/EmployeeList";
-import PaymentHistory from "../pages/PaymentHistory";
-import WorkProgress from "../pages/WorkProgress";
-import WorkSheet from "../pages/WorkSheet";
+import AllEmployee from "../components/AdminDashboard/AllEmployee";
+import Payroll from "../components/AdminDashboard/Payroll";
+import EmployeeList from "../components/HrDashboard/EmployeeList";
+import PaymentHistory from "../components/EmployeeDashboard/PaymentHistory";
+import WorkProgress from "../components/HrDashboard/WorkProgress";
+import WorkSheet from "../components/EmployeeDashboard/WorkSheet";
 import DashboardHome from "../pages/DashboardHome";
 
 const router = createBrowserRouter([
