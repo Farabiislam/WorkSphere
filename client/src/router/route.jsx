@@ -15,6 +15,9 @@ import PaymentHistory from "../pages/PaymentHistory";
 import WorkProgress from "../pages/WorkProgress";
 import WorkSheet from "../pages/WorkSheet";
 import DashboardHome from "../pages/DashboardHome";
+import AdminRoute from "./AdminRoute";
+import HrRoute from "./HrRoute";
+import EmployeeRoute from "./EmployeeRoute";
 
 const router = createBrowserRouter([
   {
@@ -52,27 +55,27 @@ const router = createBrowserRouter([
       },
       {
         path: '/dashboard/employees',
-        element: <AllEmployee />
+        element: <AdminRoute><AllEmployee /></AdminRoute>
       },
       {
         path: '/dashboard/payroll',
-        element: <Payroll />
+        element: <AdminRoute><Payroll /></AdminRoute>
       },
       {
         path: '/dashboard/employee-list',
-        element: <EmployeeList />
+        element: <HrRoute><EmployeeList /></HrRoute>
       },
       {
         path: '/dashboard/work-progress',
-        element: <WorkProgress />
+        element: <HrRoute><WorkProgress /></HrRoute>
       },
       {
         path: '/dashboard/worksheet',
-        element: <WorkSheet />
+        element: <EmployeeRoute><WorkSheet /></EmployeeRoute>
       },
       {
         path: '/dashboard/payment-history',
-        element: <PaymentHistory />
+        element: <EmployeeRoute><PaymentHistory /></EmployeeRoute>
       }
     ]
 
