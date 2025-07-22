@@ -31,7 +31,7 @@ const Navbar = () => {
     const { user, logout, loading, role } = useContext(AuthContext)
     const location = useLocation()
 
-
+    
     const handleLogout = function () {
         logout().then(() => {
             // Sign-out successful.
