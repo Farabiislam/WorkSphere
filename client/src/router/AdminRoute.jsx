@@ -3,13 +3,13 @@ import { AuthContext } from '../context/AuthContext'
 import { Navigate } from 'react-router'
 
 const AdminRoute = ({childern}) => {
-    const { user,role, loading } = use(AuthContext)
-    if (loading ) {
+    const { user,role, loading, roleLoading } = use(AuthContext)
+  if (loading || roleLoading ) {
         return <span className="loading loading-spinner loading-xl"></span>
-    }
-
-    if (!user || role !== 'admin') {
-        return <Navigate state={{ from: location.pathname }} to="/"></Navigate>
+  }
+  console.log(role)
+    if (role !== 'admin') {
+        return <Navigate state={{ from: location.pathname }} to="/*"></Navigate>
     }
 
   return (
