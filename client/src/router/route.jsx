@@ -23,68 +23,98 @@ const router = createBrowserRouter([
   {
     path: "/",
     Component: MainLayout,
-    hydrateFallbackElement: <div className="min-h-screen flex justify-center items-center flex-col">
-      Wait...
-      <progress className="progress w-56"></progress>
-    </div>,
+    hydrateFallbackElement: (
+      <div className="min-h-screen flex justify-center items-center flex-col">
+        Wait...
+        <progress className="progress w-56"></progress>
+      </div>
+    ),
     children: [
       {
         path: "/",
         element: <Home />,
-      }, {
+      },
+      {
         path: "/login",
         element: <Login />,
       },
       {
-        path: '/register',
-        element: <Register />
-      }, {
-        path: '/contact',
-        element: <ContactUs />
-      }
+        path: "/register",
+        element: <Register />,
+      },
+      {
+        path: "/contact",
+        element: <ContactUs />,
+      },
     ],
   },
   {
     path: "/dashboard",
-    element: <PrivateRoute><Dashboard /></PrivateRoute>,
+    element: (
+      <PrivateRoute>
+        <Dashboard />
+      </PrivateRoute>
+    ),
     children: [
       {
         index: true,
-        path: '/dashboard',
-        element:<DashboardHome/>
+        path: "/dashboard",
+        element: <DashboardHome />,
       },
       {
-        path: '/dashboard/employees',
-        element: <AdminRoute><AllEmployee /></AdminRoute>
+        path: "/dashboard/employees",
+        element: (
+          <AdminRoute>
+            <AllEmployee />
+          </AdminRoute>
+        ),
       },
       {
-        path: '/dashboard/payroll',
-        element: <AdminRoute><Payroll /></AdminRoute>
+        path: "/dashboard/payroll",
+        element: (
+          <AdminRoute>
+            <Payroll />
+          </AdminRoute>
+        ),
       },
       {
-        path: '/dashboard/employee-list',
-        element: <HrRoute><EmployeeList /></HrRoute>
+        path: "/dashboard/employee-list",
+        element: (
+          <HrRoute>
+            <EmployeeList />
+          </HrRoute>
+        ),
       },
       {
-        path: '/dashboard/work-progress',
-        element: <HrRoute><WorkProgress /></HrRoute>
+        path: "/dashboard/work-progress",
+        element: (
+          <HrRoute>
+            <WorkProgress />
+          </HrRoute>
+        ),
       },
       {
-        path: '/dashboard/worksheet',
-        element: <EmployeeRoute><WorkSheet /></EmployeeRoute>
+        path: "/dashboard/worksheet",
+        element: (
+          <EmployeeRoute>
+            <WorkSheet />
+          </EmployeeRoute>
+        ),
       },
       {
-        path: '/dashboard/payment-history',
-        element: <EmployeeRoute><PaymentHistory /></EmployeeRoute>
-      }
-    ]
-
+        path: "/dashboard/payment-history",
+        element: (
+          <EmployeeRoute>
+            <PaymentHistory />
+          </EmployeeRoute>
+        ),
+      },
+    ],
   },
   {
     path: "/*",
     Component: Error404,
-  }
-
+  },
 ]);
 
 export default router;

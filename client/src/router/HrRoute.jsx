@@ -2,7 +2,7 @@ import React, { use } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import { Navigate } from 'react-router'
 
-const HrRoute = ({ childern }) => {
+const HrRoute = ({ children }) => {
     const { user, role, loading } = use(AuthContext)
     if (loading) {
         return <span className="loading loading-spinner loading-xl"></span>
@@ -11,9 +11,7 @@ const HrRoute = ({ childern }) => {
     if (!user || role !== 'hr') {
         return <Navigate state={{ from: location.pathname }} to="/"></Navigate>
     }
-    return (
-        childern
-    )
+    return children;
 }
 
 export default HrRoute
