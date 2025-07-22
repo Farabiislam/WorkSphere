@@ -5,8 +5,10 @@ import Footer from './Footer';
 import { AuthContext } from '../context/AuthContext';
 
 const MainLayout = () => {
-  const { loading, roleLoading } = useContext(AuthContext);
-  if (loading || roleLoading) {
+  const { user,loading, roleLoading } = useContext(AuthContext);
+
+  if (user&&(loading || roleLoading)) {
+    console.log("from main layout");
     return <span className="loading loading-spinner loading-xl"></span>
   }
   return (
