@@ -18,6 +18,7 @@ import DashboardHome from "../pages/DashboardHome";
 import AdminRoute from "./AdminRoute";
 import HrRoute from "./HrRoute";
 import EmployeeRoute from "./EmployeeRoute";
+import EmployeeDetails from "../components/HrDashboard/EmployeeDetails";
 
 const router = createBrowserRouter([
   {
@@ -82,6 +83,14 @@ const router = createBrowserRouter([
         element: (
           <HrRoute>
             <EmployeeList />
+          </HrRoute>
+        ),
+      },
+      {
+        path: "/dashboard/employee-list/empolyeedetails/:id",
+        element: (
+          <HrRoute>
+            <EmployeeDetails/>
           </HrRoute>
         ),
       },

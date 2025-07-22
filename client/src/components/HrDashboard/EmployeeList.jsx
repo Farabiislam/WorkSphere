@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Check, X, Filter } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Link } from "react-router";
 
 const allEmployees = [
   {
@@ -137,12 +138,23 @@ const EmployeeList = () => {
                 <td>{emp.bank}</td>
                 <td>{emp.salary}</td>
                 <td className="space-x-2">
-                  <Button disabled={!emp.verified} variant="default" size="sm">
+                  <Button
+                    className="cursor-pointer "
+                    disabled={!emp.verified}
+                    variant="default"
+                    size="sm"
+                  >
                     Pay
                   </Button>
-                  <Button variant="outline" size="sm">
-                    Details
-                  </Button>
+                  <Link to="/dashboard/employee-list/empolyeedetails/:id">
+                    <Button
+                      className="cursor-pointer "
+                      variant="outline"
+                      size="sm"
+                    >
+                      Details
+                    </Button>
+                  </Link>
                 </td>
               </tr>
             ))}
