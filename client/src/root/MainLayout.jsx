@@ -17,8 +17,7 @@ const MainLayout = () => {
       <div className='min-h-screen w-11/12 mx-auto sm:p-4 '>
         <Outlet />
       </div>
-
-      <Footer/>
+      <Footer />
     </div>
   );
 };
