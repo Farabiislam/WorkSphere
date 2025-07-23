@@ -2,7 +2,7 @@ import React, { use } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import { Navigate } from 'react-router'
 
-const AdminRoute = ({childern}) => {
+const AdminRoute = ({children}) => {
     const { user,role, loading, roleLoading } = use(AuthContext)
   if (loading || roleLoading ) {
         return <span className="loading loading-spinner loading-xl"></span>
@@ -13,7 +13,7 @@ const AdminRoute = ({childern}) => {
     }
 
   return (
-    childern
+    children
   )
 }
 
