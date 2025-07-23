@@ -60,7 +60,7 @@ const workRecords = [
     hours: 26,
     tags: ["Security", "Work Record"],
   },
-  // Add more records as needed
+
 ];
 
 const ITEMS_PER_PAGE = 2;
@@ -98,13 +98,13 @@ const WorkProgress = () => {
   const allEmployees = [...new Set(workRecords.map((r) => r.employee))];
 
   return (
-    <Card className="max-w-6xl mx-auto mt-10 p-6">
+    <Card className="max-w-6xl mx-auto mt-10 p-4 md:p-6">
       <h2 className="text-xl font-semibold mb-4">Work Progress Records</h2>
 
-      <div className="flex justify-between mb-4">
-        <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-8 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full md:w-auto">
           <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-full md:w-[200px]">
               <SelectValue placeholder="All Employees" />
             </SelectTrigger>
             <SelectContent>
@@ -118,7 +118,7 @@ const WorkProgress = () => {
           </Select>
 
           <Select value={monthFilter} onValueChange={setMonthFilter}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-full md:w-[200px]">
               <SelectValue placeholder="All Months" />
             </SelectTrigger>
             <SelectContent>
@@ -137,17 +137,17 @@ const WorkProgress = () => {
         {paginated.map((item, idx) => (
           <div
             key={idx}
-            className="border rounded-lg p-4 flex justify-between items-start"
+            className="border rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
           >
-            <div className="flex gap-4">
+            <div className="flex gap-4 w-full md:w-auto">
               <Avatar>
                 <AvatarFallback>{item.initials}</AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-semibold">{item.task}</p>
-                <p className="text-gray-500 text-sm">{item.employee}</p>
-                <p className="text-sm mt-1">{item.description}</p>
-                <div className="flex gap-2 mt-2">
+                <p className="font-semibold text-sm md:text-base">{item.task}</p>
+                <p className="text-gray-500 text-xs md:text-sm">{item.employee}</p>
+                <p className="text-xs md:text-sm mt-1">{item.description}</p>
+                <div className="flex flex-wrap gap-2 mt-2">
                   {item.tags.map((tag, i) => (
                     <Badge
                       key={i}
@@ -160,7 +160,7 @@ const WorkProgress = () => {
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-2 text-sm">
+            <div className="flex flex-col items-end gap-2 text-xs md:text-sm w-full md:w-auto">
               <div>{new Date(item.date).toLocaleDateString()}</div>
               <Badge
                 className={
@@ -181,7 +181,7 @@ const WorkProgress = () => {
                 {item.priority}
               </Badge>
               <div className="font-bold">{item.hours}h</div>
-              <div className="flex gap-2 mt-2">
+              <div className="flex flex-wrap justify-end gap-2 mt-2">
                 <Button variant="outline" size="sm">
                   View Details
                 </Button>
