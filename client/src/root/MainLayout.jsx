@@ -5,11 +5,14 @@ import Footer from './Footer';
 import { AuthContext } from '../context/AuthContext';
 
 const MainLayout = () => {
-  const { user,loading, roleLoading } = useContext(AuthContext);
+  const { user, loading, roleLoading } = useContext(AuthContext);
 
-  if (user&&(loading || roleLoading)) {
-    console.log("from main layout");
-    return <span className="loading loading-spinner loading-xl"></span>
+  if (loading || (user && (loading || roleLoading))) {
+    console.log("from main layout 2 with user with loading or roleLoading");
+    return <div className="min-h-screen flex justify-center items-center flex-col">
+      Loading...
+      <progress className="progress w-56"></progress>
+    </div>;
   }
   return (
     <div className='overflow-hidden'> {/**/}

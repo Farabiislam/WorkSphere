@@ -8,17 +8,17 @@ import Dashboard from "../pages/Dashboard";
 import Error404 from "../pages/Error404";
 import PrivateRoute from "./PrivateRoute";
 import Profile from "../pages/Profile";
-import AllEmployee from "../components/AdminDashboard/AllEmployee";
-import Payroll from "../components/AdminDashboard/Payroll";
-import EmployeeList from "../components/HrDashboard/EmployeeList";
-import PaymentHistory from "../components/EmployeeDashboard/PaymentHistory";
-import WorkProgress from "../components/HrDashboard/WorkProgress";
-import WorkSheet from "../components/EmployeeDashboard/WorkSheet";
 import DashboardHome from "../pages/DashboardHome";
 import AdminRoute from "./AdminRoute";
 import HrRoute from "./HrRoute";
 import EmployeeRoute from "./EmployeeRoute";
-import EmployeeDetails from "../components/HrDashboard/EmployeeDetails";
+import AllEmployee from "../pages/AdminDashboard/AllEmployee";
+import Payroll from "../pages/AdminDashboard/Payroll";
+import EmployeeList from "../pages/HrDashboard/EmployeeList";
+import WorkProgress from "../pages/HrDashboard/WorkProgress";
+import PaymentHistory from "../pages/EmployeeDashboard/PaymentHistory";
+import WorkSheet from "../pages/EmployeeDashboard/WorkSheet";
+import EmployeeDetails from "../pages/HrDashboard/EmployeeDetails";
 
 const router = createBrowserRouter([
   {
@@ -90,7 +90,7 @@ const router = createBrowserRouter([
         path: "/dashboard/employee-list/empolyeedetails/:id",
         element: (
           <HrRoute>
-            <EmployeeDetails/>
+            <EmployeeDetails />
           </HrRoute>
         ),
       },
