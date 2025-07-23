@@ -1,9 +1,17 @@
-import React, { useState, useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check, X, Filter } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Filter, Check, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
 const allEmployees = [
@@ -82,9 +90,9 @@ const EmployeeList = () => {
 
   return (
     <Card className="max-w-6xl mx-auto mt-10 p-6">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
         <h2 className="text-xl font-semibold">Employee Management</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Input
             className="w-64"
             placeholder="Search employees..."
@@ -104,65 +112,62 @@ const EmployeeList = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="border-b text-left">
-            <tr>
-              <th className="py-2">Name</th>
-              <th>Email</th>
-              <th>Verified</th>
-              <th>Bank Account</th>
-              <th>Salary</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Verified</TableHead>
+              <TableHead>Bank Account</TableHead>
+              <TableHead>Salary</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {paginatedEmployees.map((emp, idx) => (
-              <tr key={idx} className="border-b">
-                <td className="flex items-center gap-3 py-4">
-                  <Avatar>
-                    <AvatarFallback>{emp.initials}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium leading-none">{emp.name}</div>
-                    <div className="text-xs text-gray-500">{emp.role}</div>
+              <TableRow key={idx}>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarFallback>{emp.initials}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-medium">{emp.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {emp.role}
+                      </div>
+                    </div>
                   </div>
-                </td>
-                <td>{emp.email}</td>
-                <td>
+                </TableCell>
+                <TableCell>{emp.email}</TableCell>
+                <TableCell>
                   {emp.verified ? (
                     <Check className="text-green-500 w-5 h-5" />
                   ) : (
                     <X className="text-red-500 w-5 h-5" />
                   )}
-                </td>
-                <td>{emp.bank}</td>
-                <td>{emp.salary}</td>
-                <td className="space-x-2">
-                  <Button
-                    className="cursor-pointer "
-                    disabled={!emp.verified}
-                    variant="default"
-                    size="sm"
-                  >
+                </TableCell>
+                <TableCell>{emp.bank}</TableCell>
+                <TableCell>{emp.salary}</TableCell>
+                <TableCell className="space-x-2">
+                  <Button disabled={!emp.verified} variant="default" size="sm">
                     Pay
                   </Button>
-                  <Link to="/dashboard/employee-list/empolyeedetails/:id">
-                    <Button
-                      className="cursor-pointer "
-                      variant="outline"
-                      size="sm"
-                    >
+                  <Link
+                    to={`/dashboard/employee-list/empolyeedetails/${emp.id}`}
+                  >
+                    <Button variant="outline" size="sm">
                       Details
                     </Button>
                   </Link>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
-      <div className="mt-4 flex justify-between items-center">
+      <div className="mt-4 flex justify-between items-center flex-wrap gap-4">
         <span className="text-sm text-gray-500">
           Showing{" "}
           {filteredEmployees.length === 0
