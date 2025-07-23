@@ -204,7 +204,7 @@ const Register = () => {
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="admin">Admin</SelectItem>
+                                                    {/* <SelectItem value="admin">Admin</SelectItem> */}
                                                     <SelectItem value="employee">Employee</SelectItem>
                                                     <SelectItem value="hr">HR</SelectItem>
                                                 </SelectContent>

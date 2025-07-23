@@ -25,6 +25,7 @@ async function run() {
         // await client.connect();
         const database = client.db("emp-db");
         const employeesCollection = database.collection("users");
+        const worksCollection = database.collection("work");
 
 
         app.post('/register', async (req, res) => {
@@ -52,6 +53,18 @@ async function run() {
             } 
             res.send(user);
             
+        })
+
+        app.get('/works', async (req, res) => {
+            const email= req.query.email;
+            const query = { email: email };
+            const works = await worksCollection.find(query).toArray();
+            res.send(works.reverse());
+        })
+        app.post('/works', async (req, res) => {
+            const work = req.body;
+            const result = await worksCollection.insertOne(work);
+            res.send(result);
         })
 
 
