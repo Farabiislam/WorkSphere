@@ -8,7 +8,7 @@ import Dashboard from "../pages/Dashboard";
 import Error404 from "../pages/Error404";
 import PrivateRoute from "./PrivateRoute";
 import Profile from "../pages/Profile";
-import DashboardHome from "../pages/DashboardHome";
+//import DashboardHome from "../pages/DashboardHome";
 import AdminRoute from "./AdminRoute";
 import HrRoute from "./HrRoute";
 import EmployeeRoute from "./EmployeeRoute";
@@ -19,6 +19,7 @@ import WorkProgress from "../pages/HrDashboard/WorkProgress";
 import PaymentHistory from "../pages/EmployeeDashboard/PaymentHistory";
 import WorkSheet from "../pages/EmployeeDashboard/WorkSheet";
 import EmployeeDetails from "../pages/HrDashboard/EmployeeDetails";
+import DashboardRedirect from "../pages/DashboardRedirect";
 
 const router = createBrowserRouter([
   {
@@ -60,7 +61,7 @@ const router = createBrowserRouter([
       {
         index: true,
         path: "/dashboard",
-        element: <DashboardHome />,
+        element: <DashboardRedirect />,
       },
       {
         path: "/dashboard/employees",
