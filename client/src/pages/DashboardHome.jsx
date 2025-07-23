@@ -10,7 +10,13 @@ import { HandIcon } from 'lucide-react';
 
 const DashboardHome = () => {
     const { role, roleLoading } = use(AuthContext)
-
+    if (roleLoading) {
+        console.log("from private route")
+        return <div className="min-h-screen flex justify-center items-center flex-col">
+            Loading...
+            <progress className="progress w-56"></progress>
+        </div>;
+    }
     const getWelcomeMessage = () => {
         switch (role) {
             case 'admin':
