@@ -39,8 +39,19 @@ async function run() {
             if (user) {
                 res.send({ role: user.role });
             } else {
-                res.status(404).send({ message: "User not found" });
+                res.send({ role: null });
             }
+        })
+
+        app.get('/users', async (req, res) => {
+            const email = req.query.email;
+            const query = { emailAddress: email };
+            const user = await employeesCollection.findOne(query);
+            if (!user) {
+                return res.send({ user: false });
+            } 
+            res.send(user);
+            
         })
 
 

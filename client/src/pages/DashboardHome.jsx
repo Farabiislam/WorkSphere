@@ -9,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { HandIcon } from 'lucide-react';
 
 const DashboardHome = () => {
-    const { role } = use(AuthContext)
+    const { role, roleLoading } = use(AuthContext)
+
     const getWelcomeMessage = () => {
         switch (role) {
             case 'admin':
@@ -35,7 +36,7 @@ const DashboardHome = () => {
         }
     };
   return (
-      <div className="flex justify-center items-center min-h-[80vh] px-4">
+      <div className="flex justify-center items-center min-h-screen px-4">
           <Card className="max-w-xl w-full shadow-lg rounded-xl">
               <CardHeader className="text-center space-y-4">
                   {getIcon()}

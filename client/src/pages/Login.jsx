@@ -1,7 +1,7 @@
 import React, { use } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { set, z } from "zod"
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link, Navigate } from 'react-router';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { AuthContext } from '../context/AuthContext';
+import axios from 'axios';
+import { useQueryClient } from '@tanstack/react-query';
 
 const loginSchema = z.object({
     email: z.string().min(1, "Email is required").email("Invalid email"),
@@ -18,7 +20,11 @@ const loginSchema = z.object({
 });
 
 const Login = () => {
-    const { setUser, loginUser, user, loading, loginWithGoogle } = use(AuthContext)
+    const { setUser, loginUser, user, loading, setLoading, loginWithGoogle } = use(AuthContext)
+    const location = useLocation();
+    const navigate = useNavigate();
+    const from = location.state?.from || '/';
+    const queryClient = useQueryClient();
     const {
         register,
         handleSubmit,
@@ -44,6 +50,7 @@ const Login = () => {
                 const userr = result.user;
                 console.log("firebase User logged in successfully:", userr);
                 setUser(userr);
+                navigate(from);
             })
             .catch((error) => {
                 console.error("Error logging in:", error);
@@ -51,8 +58,44 @@ const Login = () => {
     };
 
     const handleGoogleLogin = () => {
-        // Use Firebase Auth
         console.log("Logging in with Google...");
+        loginWithGoogle()
+            .then(async (result) => {
+                const userr = result.user;
+                setUser(userr);
+                setLoading(true);
+                const user_registrationData = {
+                    fullName: userr.displayName,
+                    emailAddress: userr.email,
+                    phoneNumber: "",
+                    role: "employee",
+                    bankAccountNumber: "",
+                    monthlySalary: "",
+                    designation: "",
+                    profilePhoto: "",
+                    created_at: new Date().toISOString()
+                };
+
+                const isUserExists = await axios.get(`${import.meta.env.VITE_API_URL}/users?email=${userr.email}`);
+                console.log("User already exists:", isUserExists.data);
+                
+                if (isUserExists.data.user === false) {
+                    const registeredUser = await axios.post(`${import.meta.env.VITE_API_URL}/register`, user_registrationData);
+                    console.log("Google User logged in with first time registration successfully:", registeredUser.data);
+                    await queryClient.refetchQueries({ queryKey: ['role', userr.email] });
+                    setLoading(false);
+
+                } else {
+                    console.log("Google User logged in successfully:", userr);
+                    setLoading(false);
+
+                }
+
+            })
+            .catch((error) => {
+                console.error("Error logging in with Google:", error);
+            });
+
     };
 
     return (

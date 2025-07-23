@@ -48,8 +48,9 @@ const AuthContextProvider = ({ children }) => {
         enabled: !!user?.email, // only fetch when email is available
         queryFn: async () => {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/user-role?email=${user.email}`)
+           // console.log("Role data fetched:", res);
             const data = await res.json()
-            return data.role
+            return data.role || null
         },
     })
 
@@ -62,6 +63,7 @@ const AuthContextProvider = ({ children }) => {
         role: roleData,
         loading: loading,
         roleLoading,
+        setLoading,
         updateUser,
         // resetPassword,
         loginWithGoogle
