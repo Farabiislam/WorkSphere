@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+
 import {
   Table,
   TableBody,
@@ -11,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const employees = [
   {
@@ -58,36 +58,15 @@ const employees = [
 
 
 const AllEmployee = () => {
-  const [search, setSearch] = useState("");
-  const [employees, setEmployees] = useState(dummyEmployees);
 
-  const filteredEmployees = employees.filter((emp) =>
-    emp.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const toggleHR = (id) => {
-    setEmployees((prev) =>
-      prev.map((emp) =>
-        emp.id === id ? { ...emp, isHR: !emp.isHR } : emp
-      )
-    );
-  };
-
-  const fireEmployee = (id) => {
-    setEmployees((prev) =>
-      prev.map((emp) =>
-        emp.id === id ? { ...emp, isFired: true } : emp
-      )
-    );
-  };
   return (
-    <div>
-      <div className="p-6 bg-white shadow rounded-lg">
+    <div className='w-full overflow-x-auto '>
+      <div className="p-6 bg-base shadow rounded-lg">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <h2 className="text-xl font-semibold">Employee Management</h2>
           <div className="flex gap-2 items-center">
             <Input placeholder="Search employees..." className="w-64" />
-            <select className="border px-3 py-1 rounded-md text-sm">
+            <select className="border bg-secondary text-primary px-3 py-1 rounded-md text-sm">
               <option>10 per page</option>
               <option>20 per page</option>
               <option>50 per page</option>
@@ -95,7 +74,7 @@ const AllEmployee = () => {
           </div>
         </div>
 
-        <ScrollArea className="rounded-md border">
+        <div className='w-full overflow-x-auto'>
           <Table>
             <TableHeader>
               <TableRow>
@@ -130,11 +109,19 @@ const AllEmployee = () => {
                     <TableCell>{emp.designation}</TableCell>
                     <TableCell>{emp.salary}</TableCell>
                     <TableCell>
-                      {emp.isHR ? (
-                        <Badge variant="outline">HR</Badge>
-                      ) : (
-                        <Button size="sm">Make HR</Button>
-                      )}
+                      {emp.isFired == true ? (
+                        <Badge variant="destructive">fired</Badge>
+                      ) : (<>
+                        {
+                          emp.isHR ? (
+                            <Badge variant="outline">HR</Badge>
+                          ) : (
+                            <Button size="sm">Make HR</Button>
+                          )
+                        }
+                      </>
+                      )
+                      }
                     </TableCell>
                     <TableCell>
                       {emp.isFired ? (
@@ -150,7 +137,7 @@ const AllEmployee = () => {
               })}
             </TableBody>
           </Table>
-        </ScrollArea>
+        </div>
 
         <div className="flex items-center justify-between mt-4">
           <p className="text-sm text-muted-foreground">

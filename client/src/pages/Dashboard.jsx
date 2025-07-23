@@ -35,7 +35,7 @@ const Dashboard = () => {
                         )}
                     </nav>
                 </aside>
-                <main className="flex-1">
+                <main className="flex-1 overflow-x-auto">
                     <Outlet />
                 </main>
             </div>
