@@ -82,15 +82,24 @@ const AllEmployee = () => {
     res.data.success && toast(res.data.message);
     refetch(); 
   }
-  const fireEmployee = async (id) => {
-    try {
-      const res = await axios.patch(`${import.meta.env.VITE_API_URL}/user-fire/${id}`);
-      //console.log(res.data);
-      res.data.success && toast(res.data.message);
-      refetch();
-    } catch (err) {
-      console.error("Error firing employee", err);
-    }
+  const fireEmployee = (id) => {
+    toast("Are you sure you want to fire this employee?", {
+      action: {
+        label: "confirm",
+        onClick: async () => {
+          console.log("fired employee")
+          try {
+            const res = await axios.patch(`${import.meta.env.VITE_API_URL}/user-fire/${id}`);
+            //console.log(res.data);
+            res.data.success && toast(res.data.message);
+            refetch();
+          } catch (err) {
+            console.error("Error firing employee", err);
+          }
+        },
+      },
+    })
+   
   }
 
   if (isLoading) return <p className="p-4">Loading...</p>;
