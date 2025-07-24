@@ -3,12 +3,14 @@ import Navbar from '../root/Navbar'
 import { NavLink, Outlet } from 'react-router'
 import Footer from '../root/Footer'
 import { AuthContext } from '../context/AuthContext'
+import { Toaster } from 'sonner'
 
 const Dashboard = () => {
     const {role}=useContext(AuthContext)
     return (
         <div>
             <Navbar />
+            <Toaster/>
             <div className='min-h-screen flex'>
                 <aside className="hidden sm:flex sm:flex-col w-50 bg-secondary border-r min-h-screen">
                     <nav className="p-4 space-y-2">

@@ -3,7 +3,7 @@ import { Outlet } from "react-router";
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { AuthContext } from '../context/AuthContext';
-
+import { Toaster } from "@/components/ui/sonner"
 const MainLayout = () => {
   const { user, loading, roleLoading } = useContext(AuthContext);
 
@@ -17,6 +17,7 @@ const MainLayout = () => {
   return (
     <div className='overflow-hidden'> {/**/}
       <Navbar />
+      <Toaster/>
       <div className='min-h-screen w-11/12 mx-auto sm:p-4 '>
         <Outlet />
       </div>
