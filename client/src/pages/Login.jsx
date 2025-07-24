@@ -1,4 +1,4 @@
-import React, { use } from 'react';
+import React, { use, useState } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { set, z } from "zod"
@@ -13,6 +13,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 const loginSchema = z.object({
     email: z.string().min(1, "Email is required").email("Invalid email"),
@@ -20,7 +21,7 @@ const loginSchema = z.object({
 });
 
 const Login = () => {
-    const { setUser, loginUser, user, loading, setLoading, loginWithGoogle } = use(AuthContext)
+    const { setUser, loginUser, user, loading, setLoading, loginWithGoogle, logout } = use(AuthContext)
     const location = useLocation();
     const navigate = useNavigate();
     const from = location.state?.from || '/dashboard';
@@ -43,18 +44,24 @@ const Login = () => {
         return <Navigate to={"/dashboard"} replace />
     }
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         console.log(data);
-        loginUser(data.email, data.password)
-            .then((result) => {
-                const userr = result.user;
-                console.log("firebase User logged in successfully:", userr);
-                setUser(userr);
-                navigate(from);
-            })
-            .catch((error) => {
-                console.error("Error logging in:", error);
-            });
+        const isUserExists = await axios.get(`${import.meta.env.VITE_API_URL}/users?email=${data.email}`);
+        if (isUserExists.data.isFired) {
+            console.error("User is fired, cannot login.");
+            toast.error("You are fired, cannot login")
+        } else {
+            loginUser(data.email, data.password)
+                .then((result) => {
+                    const userr = result.user;
+                    console.log("firebase User logged in successfully:", userr);
+                    setUser(userr);
+                    navigate(from);
+                })
+                .catch((error) => {
+                    console.error("Error logging in:", error);
+                });
+        }
     };
 
     const handleGoogleLogin = () => {
@@ -78,17 +85,26 @@ const Login = () => {
 
                 const isUserExists = await axios.get(`${import.meta.env.VITE_API_URL}/users?email=${userr.email}`);
                 console.log("User already exists:", isUserExists.data);
-                
-                if (isUserExists.data.user === false) {
-                    const registeredUser = await axios.post(`${import.meta.env.VITE_API_URL}/register`, user_registrationData);
-                    console.log("Google User logged in with first time registration successfully:", registeredUser.data);
-                    await queryClient.refetchQueries({ queryKey: ['role', userr.email] });
-                    setLoading(false);
 
+                if (isUserExists.data.isFired) {
+                    console.log("User is fired, cannot login.");
+                    logout();
+                    toast("You are fired, cannot login");
+                    setLoading(false);
+                    return;
                 } else {
-                    console.log("Google User logged in successfully:", userr);
-                    setLoading(false);
 
+                    if (isUserExists.data.user === false) {
+                        const registeredUser = await axios.post(`${import.meta.env.VITE_API_URL}/register`, user_registrationData);
+                        console.log("Google User logged in with first time registration successfully:", registeredUser.data);
+                        await queryClient.refetchQueries({ queryKey: ['role', userr.email] });
+                        setLoading(false);
+
+                    } else {
+                        console.log("Google User logged in successfully:", userr);
+                        setLoading(false);
+
+                    }
                 }
 
             })
