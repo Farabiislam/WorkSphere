@@ -76,7 +76,6 @@ async function run() {
       );
       res.send(result);
     });
-    
     //delete works
     app.delete("/works/:id", async (req, res) => {
       const id = req.params.id;

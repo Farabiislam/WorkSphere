@@ -106,7 +106,7 @@ const WorkSheet = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-5xl mx-auto p-6 space-y-6">
       <Card>
         <CardContent className="p-6 space-y-4">
           <h2 className="text-xl font-semibold">Add Work Entry</h2>
@@ -115,7 +115,10 @@ const WorkSheet = () => {
               {/* Task Select */}
               <Select
                 value={taskValue}
-                onValueChange={(val) => setValue("task", val)}
+                onValueChange={(val) => {
+                  setTaskValue(val);
+                  setValue("task", val);
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select Task" />
