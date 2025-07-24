@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { use, useContext, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,9 +11,19 @@ import {
 } from "@/components/ui/select";
 import { Pencil, X } from "lucide-react";
 import { format } from "date-fns";
-import { AuthContext } from "../../context/AuthContext";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import { useQuery } from '@tanstack/react-query'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { AuthContext } from "../../context/AuthContext";
+
 
 const tasks = [
   "Sales",
@@ -29,12 +39,10 @@ const tasks = [
 ];
 
 const WorkSheet = () => {
-  const { user } = useContext(AuthContext);
-  const [entries, setEntries] = useState([]);
+  const { user } = useContext(AuthContext)
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const [taskAdded, setTaskAdded] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [taskValue, setTaskValue] = useState("");
+  const [selectedEntry, setSelectedEntry] = useState({});
   const {
     register,
     handleSubmit,
@@ -43,62 +51,88 @@ const WorkSheet = () => {
     setValue,
   } = useForm();
 
+  const {
+    register: editRegister,
+    handleSubmit: handleEditSubmit,
+    reset: resetEdit,
+    setValue: setEditValue,
+    formState: { errors: editErrors },
+  } = useForm();
+
   const onSubmit = async (data) => {
     data.email = user.email;
     const formattedDate = format(new Date(data.date), "MMM dd, yyyy");
     data.date = formattedDate;
-
-    if (editingId) {
-      // update
-      const res = await axios.put(
-        `${import.meta.env.VITE_API_URL}/works/${editingId}`,
-        data
-      );
-      if (res.data.modifiedCount > 0) {
-        const updatedEntries = entries.map((entry) =>
-          entry._id === editingId ? { ...entry, ...data } : entry
-        );
-        setEntries(updatedEntries);
-        setEditingId(null);
-        reset(); // clear form
-        setTaskValue("");
+    console.log("Submitted Work Entry:", data);
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/works`, data);
+    if (res.data.acknowledged) {
+      console.log("Work entry added successfully");
+      refetch();
+    }
+    reset();
+    console.log("Submitted Work Entry:", res.data);
+  };
+  const onEditSubmit = async (data) => {
+    data.email = user.email;
+    const formattedDate = format(new Date(data.date), "MMM dd, yyyy");
+    data.date = formattedDate;
+    try {
+      const res = await axios.put(`${import.meta.env.VITE_API_URL}/works/${selectedEntry._id}`, data);
+      if (res.status === 200) {
+        console.log("Entry updated:", res.data);
+        resetEdit();
+        setIsEditOpen(false);
+        refetch();
       }
-    } else {
-      // add new
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/works`,
-        data
-      );
-      if (res.data.acknowledged) {
-        setTaskAdded(true);
-        reset();
-        setTaskValue("");
-      }
+    } catch (error) {
+      console.error("Error updating entry:", error);
     }
   };
+
 
   const deleteEntry = async (id) => {
-    try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/works/${id}`);
-      setEntries((prev) => prev.filter((entry) => entry._id !== id));
-    } catch (err) {
-      console.error("Delete failed", err);
+    const confirmDelete = confirm("Are you sure you want to delete this entry?");
+    if (!confirmDelete) return;
+    const res = await axios.delete(`${import.meta.env.VITE_API_URL}/works/${id}`);
+    if (res.status === 200) {
+      console.log("Entry deleted:", res.data);
+      refetch()
     }
   };
+  const fetchWorkEntries = async (email) => {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/works?email=${email}`);
+    console.log("Fetched Work Entries:", res.data);
+    return res.data;
+  };
+  const {
+    data: workEntries = [],
+    isPending,
+    isLoading,
+    isError,
+    refetch
+  } = useQuery({
+    queryKey: ['work-entries', user?.email],
+    queryFn: () => fetchWorkEntries(user.email),
+    enabled: !!user?.email,
+  });
 
-  useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/works?email=${user.email}`)
-      .then((res) => setEntries(res.data))
-      .catch((err) => console.error("Error fetching work entries:", err));
-  }, [taskAdded]);
+  // useEffect(() => {
+  //     axios.get(`${import.meta.env.VITE_API_URL}/works?email=${user.email}`)
+  //         .then(res => setEntries(res.data))
+  //         .catch(err => console.error("Error fetching work entries:", err));
+  // }, [taskAdded])
 
-  console.log("Entries:", entries);
-  const PAGE_SIZE = Math.ceil(entries.length / 4);
+  //console.log("Entries:", workEntries);
+  const PAGE_SIZE = 5;
 
-  const totalPages = Math.ceil(entries.length / PAGE_SIZE);
-  const paginatedEntries = entries.slice(0, page * PAGE_SIZE);
-
+  const totalPages = Math.ceil(workEntries.length / PAGE_SIZE);
+  const paginatedEntries = workEntries.slice(0, page * PAGE_SIZE);
+  function toInputDate(dateStr) {
+    // Try to parse known formats, fallback to today
+    const d = new Date(dateStr);
+    if (isNaN(d)) return "";
+    return d.toISOString().slice(0, 10);
+  }
   const loadMore = () => {
     if (page < totalPages) {
       setPage(page + 1);
@@ -111,15 +145,9 @@ const WorkSheet = () => {
         <CardContent className="p-6 space-y-4">
           <h2 className="text-xl font-semibold">Add Work Entry</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-1  md:grid-cols-4  gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Task Select */}
-              <Select
-                value={taskValue}
-                onValueChange={(val) => {
-                  setTaskValue(val);
-                  setValue("task", val);
-                }}
-              >
+              <Select onValueChange={(val) => setValue("task", val)} >
                 <SelectTrigger>
                   <SelectValue placeholder="Select Task" />
                 </SelectTrigger>
@@ -157,8 +185,7 @@ const WorkSheet = () => {
               )}
 
               {/* Date Input */}
-              <Input
-                className="text-end"
+              <Input className="text-end"
                 type="date"
                 {...register("date", {
                   required: "Date is required",
@@ -171,24 +198,9 @@ const WorkSheet = () => {
               )}
 
               {/* Submit */}
-              <div className="flex flex-col gap-2">
-                <Button className="w-full" type="submit">
-                  {editingId ? "Update" : "Add"}
-                </Button>
-                {editingId && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => {
-                      setEditingId(null);
-                      reset();
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                )}
-              </div>
+              <Button type="submit" className="w-full">
+                Add
+              </Button>
             </div>
           </form>
         </CardContent>
@@ -197,39 +209,101 @@ const WorkSheet = () => {
       <Card>
         <CardContent className="p-6 pb-2 relative ">
           <h2 className="text-xl font-semibold mb-4">Work Entries</h2>
-          <div className="overflow-y-auto min-h-content scrollbar-hide">
+          <div className="overflow-y-auto max-h-96 scrollbar-hide">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b">
-                  <th className="py-2 px-1">Task</th>
-                  <th className="py-2 px-1">Hours</th>
-                  <th className="py-2 px-1">Date</th>
-                  <th className="py-2 px-1">Actions</th>
+                  <th className="py-2">Task</th>
+                  <th className="py-2">Hours</th>
+                  <th className="py-2">Date</th>
+                  <th className="py-2">Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {paginatedEntries.map((entry, idx) => (
-                  <tr key={idx} className="border-b">
+              <tbody className="col-span-4 ">
+                {isLoading && (
+                  <tr>
+                    <td colSpan={4} className="text-center py-4">
+                      Loading work entries...
+                    </td>
+                  </tr>
+                )}
+                {isError && (
+                  <tr>
+                    <td colSpan={4} className="text-center py-4 text-red-500">
+                      Failed to load work entries.
+                    </td>
+                  </tr>
+                )}
+                {!isLoading && !isError && paginatedEntries.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="text-center py-4">
+                      No work entries found.
+                    </td>
+                  </tr>
+                )}
+
+                {paginatedEntries.map((entry) => (
+                  <tr key={entry._id} className="border-b">
                     <td className="py-2">{entry.task}</td>
                     <td className="py-2">{entry.hours} hrs</td>
                     <td className="py-2">{entry.date}</td>
-                    <td className="py-2 space-x-2 flex items-center flex-wrap">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setEditingId(entry._id);
-                          setValue("task", entry.task);
-                          setTaskValue(entry.task);
-                          setValue("hours", entry.hours);
-                          setValue(
-                            "date",
-                            format(new Date(entry.date), "yyyy-MM-dd")
-                          ); // input[type=date] needs yyyy-MM-dd
-                        }}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
+                    <td className="py-2 space-x-2">
+                      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="icon"
+                            onClick={() => { setSelectedEntry(entry); setIsEditOpen(true); }}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Edit Work Entry</DialogTitle>
+                            <DialogDescription>
+                              Update the details for this work entry and click "Update" to save changes.
+                            </DialogDescription>
+                          </DialogHeader>
+                          {selectedEntry && (
+                            <form onSubmit={handleEditSubmit(onEditSubmit)} className="space-y-4">
+                              <Select
+                                onValueChange={(val) => setEditValue("task", val)}
+                                defaultValue={selectedEntry.task}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select Task" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {tasks.map((t) => (
+                                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                                  ))}
+                                </SelectContent>
+
+                              </Select>
+                              <input
+                                type="hidden"
+                                {...editRegister("task", { required: "Task is required" })}
+                                defaultValue={selectedEntry.task}
+                              />
+                              <Input
+                                type="number"
+                                placeholder="Enter hours"
+                                {...editRegister("hours")}
+                                defaultValue={selectedEntry.hours}
+                              />
+                              <Input
+                                type="date"
+                                {...editRegister("date")}
+                                defaultValue={toInputDate(selectedEntry.date)}
+                              />
+                              <div className="flex justify-end gap-2">
+                                <Button type="button" variant="ghost" onClick={() => { resetEdit(); setIsEditOpen(false); }}>Cancel</Button>
+                                <Button type="submit">Update</Button>
+                              </div>
+                            </form>
+                          )}
+                        </DialogContent>
+                      </Dialog>
+
                       <Button
                         variant="ghost"
                         size="icon"
@@ -248,7 +322,7 @@ const WorkSheet = () => {
               </div>
             )}
           </div>
-          <div className="absolute p-1 right-2 text-sm text-gray-500">
+          <div className="absolute p-2 right-2 text-sm text-gray-500">
             Page {page} of {totalPages}
           </div>
         </CardContent>
