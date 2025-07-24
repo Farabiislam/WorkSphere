@@ -82,6 +82,16 @@ const AllEmployee = () => {
     res.data.success && toast(res.data.message);
     refetch(); 
   }
+  const fireEmployee = async (id) => {
+    try {
+      const res = await axios.patch(`${import.meta.env.VITE_API_URL}/user-fire/${id}`);
+      //console.log(res.data);
+      res.data.success && toast(res.data.message);
+      refetch();
+    } catch (err) {
+      console.error("Error firing employee", err);
+    }
+  }
 
   if (isLoading) return <p className="p-4">Loading...</p>;
   if (isError) return <p className="p-4 text-red-500">Error loading data</p>;
@@ -138,7 +148,7 @@ const AllEmployee = () => {
                     <TableCell>{emp.monthlySalary || 20000}</TableCell>
                     <TableCell>
                       {emp.isFired == true ? (
-                        <Badge variant="destructive">fired</Badge>
+                        <Badge variant="destructive">{emp.role}</Badge>
                       ) : (
                         <>
                           {
@@ -153,10 +163,10 @@ const AllEmployee = () => {
                       }
                     </TableCell>
                     <TableCell>
-                      {emp.isFired ? (
+                      {emp.isFired||false ? (
                         <Badge variant="destructive">Fired</Badge>
                       ) : (
-                        <Button size="icon" variant="destructive">
+                          <Button size="icon" variant="destructive" onClick={() => fireEmployee(emp._id)}>
                           ✕
                         </Button>
                       )}

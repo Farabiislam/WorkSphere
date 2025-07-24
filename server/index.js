@@ -49,7 +49,14 @@ async function run() {
       );
       res.send({ success: true, message: "User promoted to HR successfully." });
     });
-
+    app.patch("/user-fire/:id", async (req, res) => {
+      const { id } = req.params;
+      const updatedUser = await employeesCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { isFired: true } }
+      );
+      res.send({ success: true, message: "User fired successfully." });
+    });
     app.get("/users", async (req, res) => {
       const email = req.query.email;
       const query = { emailAddress: email };
