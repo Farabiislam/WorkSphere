@@ -84,6 +84,12 @@ async function run() {
       });
       res.send(result);
     });
+    // Get all employees for admins
+    app.get("/employees", async (req, res) => {
+      const query = { role: { $ne: "admin" } };
+      const users = await employeesCollection.find(query).toArray();
+      res.send(users);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

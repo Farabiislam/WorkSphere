@@ -12,52 +12,67 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from '@tanstack/react-query';
+import { AvatarImage } from '@radix-ui/react-avatar';
 
-const employees = [
-  {
-    name: "John Smith",
-    email: "john.smith@company.com",
-    designation: "Software Engineer",
-    salary: "$75,000",
-    isHR: false,
-    isFired: false,
-  },
-  {
-    name: "Sarah Johnson",
-    email: "sarah.johnson@company.com",
-    designation: "Senior Developer",
-    salary: "$85,000",
-    isHR: true,
-    isFired: false,
-  },
-  {
-    name: "Michael Chen",
-    email: "michael.chen@company.com",
-    designation: "Junior Developer",
-    salary: "$65,000",
-    isHR: false,
-    isFired: false,
-  },
-  {
-    name: "Emily Davis",
-    email: "emily.davis@company.com",
-    designation: "Team Lead",
-    salary: "$95,000",
-    isHR: true,
-    isFired: false,
-  },
-  {
-    name: "David Wilson",
-    email: "david.wilson@company.com",
-    designation: "QA Engineer",
-    salary: "$70,000",
-    isHR: false,
-    isFired: true,
-  },
-];
+// const employees = [
+//     {
+//         name: "John Smith",
+//         email: "john.smith@company.com",
+//         designation: "Software Engineer",
+//         salary: "$75,000",
+//         isHR: false,
+//         isFired: false,
+//     },
+//     {
+//         name: "Sarah Johnson",
+//         email: "sarah.johnson@company.com",
+//         designation: "Senior Developer",
+//         salary: "$85,000",
+//         isHR: true,
+//         isFired: false,
+//     },
+//     {
+//         name: "Michael Chen",
+//         email: "michael.chen@company.com",
+//         designation: "Junior Developer",
+//         salary: "$65,000",
+//         isHR: false,
+//         isFired: false,
+//     },
+//     {
+//         name: "Emily Davis",
+//         email: "emily.davis@company.com",
+//         designation: "Team Lead",
+//         salary: "$95,000",
+//         isHR: true,
+//         isFired: false,
+//     },
+//     {
+//         name: "David Wilson",
+//         email: "david.wilson@company.com",
+//         designation: "QA Engineer",
+//         salary: "$70,000",
+//         isHR: false,
+//         isFired: true,
+//     },
+// ];
 
 
 const AllEmployee = () => {
+
+  const fetchEmployees = async () => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/employees`);
+    if (!res.ok) throw new Error("Failed to fetch employees");
+    return res.json();
+  };
+  const { data: employees = [], isLoading, isError } = useQuery({
+    queryKey: ['employees'],
+    queryFn: fetchEmployees
+  });
+  console.log("Employees:", employees);
+  if (isLoading) return <p className="p-4">Loading...</p>;
+  if (isError) return <p className="p-4 text-red-500">Error loading data</p>;
 
   return (
     <div className='w-full overflow-x-auto '>
@@ -80,7 +95,6 @@ const AllEmployee = () => {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Designation</TableHead>
                 <TableHead>Salary</TableHead>
                 <TableHead>Make HR</TableHead>
                 <TableHead>Fire</TableHead>
@@ -88,26 +102,28 @@ const AllEmployee = () => {
             </TableHeader>
             <TableBody>
               {employees.map((emp, idx) => {
-                const initials = emp.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("");
+                const initials =
+                  emp.fullName
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("");
                 return (
                   <TableRow key={idx}>
                     <TableCell>
                       <div className="flex items-center gap-4">
+
                         <Avatar>
+                          <AvatarImage src={emp.profilePhoto} />
                           <AvatarFallback>{initials}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium leading-none">{emp.name}</p>
-                          <p className="text-sm text-muted-foreground">{emp.designation}</p>
+                          <p className="font-medium leading-none">{emp.fullName}</p>
+                          <p className="text-sm text-muted-foreground">{emp.designation || "employee"}</p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{emp.email}</TableCell>
-                    <TableCell>{emp.designation}</TableCell>
-                    <TableCell>{emp.salary}</TableCell>
+                    <TableCell>{emp.emailAddress}</TableCell>
+                    <TableCell>{emp.monthlySalary || 20000}</TableCell>
                     <TableCell>
                       {emp.isFired == true ? (
                         <Badge variant="destructive">fired</Badge>
