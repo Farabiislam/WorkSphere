@@ -1,4 +1,4 @@
-import React, { use, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,7 +15,6 @@ import { AuthContext } from "../../context/AuthContext";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 
-
 const tasks = [
   "Sales",
   "Support",
@@ -30,12 +29,12 @@ const tasks = [
 ];
 
 const WorkSheet = () => {
-  const { user } = useContext(AuthContext)
+  const { user } = useContext(AuthContext);
   const [entries, setEntries] = useState([]);
   const [page, setPage] = useState(1);
   const [taskAdded, setTaskAdded] = useState(false);
-  const [taskDeleted, setTaskDeleted] = useState(false);
-  
+  const [editingId, setEditingId] = useState(null);
+  const [taskValue, setTaskValue] = useState("");
   const {
     register,
     handleSubmit,
@@ -48,26 +47,52 @@ const WorkSheet = () => {
     data.email = user.email;
     const formattedDate = format(new Date(data.date), "MMM dd, yyyy");
     data.date = formattedDate;
-    console.log("Submitted Work Entry:", data);
-    const res = await axios.post(`${import.meta.env.VITE_API_URL}/works`, data);
-    if (res.data.acknowledged) {
-      console.log("Work entry added successfully");
-      setTaskAdded(true);
+
+    if (editingId) {
+      // update
+      const res = await axios.put(
+        `${import.meta.env.VITE_API_URL}/works/${editingId}`,
+        data
+      );
+      if (res.data.modifiedCount > 0) {
+        const updatedEntries = entries.map((entry) =>
+          entry._id === editingId ? { ...entry, ...data } : entry
+        );
+        setEntries(updatedEntries);
+        setEditingId(null);
+        reset(); // clear form
+        setTaskValue("");
+      }
+    } else {
+      // add new
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/works`,
+        data
+      );
+      if (res.data.acknowledged) {
+        setTaskAdded(true);
+        reset();
+        setTaskValue("");
+      }
     }
-    reset();
-    console.log("Submitted Work Entry:", res.data);
   };
 
-  const deleteEntry = (index) => {
-    const updated = [...entries];
-    updated.splice(index, 1);
-    setEntries(updated);
+  const deleteEntry = async (id) => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/works/${id}`);
+      setEntries((prev) => prev.filter((entry) => entry._id !== id));
+    } catch (err) {
+      console.error("Delete failed", err);
+    }
   };
+
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/works?email=${user.email}`)
-      .then(res => setEntries(res.data))
-      .catch(err => console.error("Error fetching work entries:", err));
-  }, [taskAdded])
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/works?email=${user.email}`)
+      .then((res) => setEntries(res.data))
+      .catch((err) => console.error("Error fetching work entries:", err));
+  }, [taskAdded]);
+
   console.log("Entries:", entries);
   const PAGE_SIZE = Math.ceil(entries.length / 4);
 
@@ -81,14 +106,17 @@ const WorkSheet = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
       <Card>
         <CardContent className="p-6 space-y-4">
           <h2 className="text-xl font-semibold">Add Work Entry</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1  md:grid-cols-4  gap-4">
               {/* Task Select */}
-              <Select onValueChange={(val) => setValue("task", val)} >
+              <Select
+                value={taskValue}
+                onValueChange={(val) => setValue("task", val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select Task" />
                 </SelectTrigger>
@@ -126,7 +154,8 @@ const WorkSheet = () => {
               )}
 
               {/* Date Input */}
-              <Input className="text-end"
+              <Input
+                className="text-end"
                 type="date"
                 {...register("date", {
                   required: "Date is required",
@@ -139,9 +168,24 @@ const WorkSheet = () => {
               )}
 
               {/* Submit */}
-              <Button type="submit" className="w-full">
-                Add
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button className="w-full" type="submit">
+                  {editingId ? "Update" : "Add"}
+                </Button>
+                {editingId && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setEditingId(null);
+                      reset();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </div>
             </div>
           </form>
         </CardContent>
@@ -167,13 +211,26 @@ const WorkSheet = () => {
                     <td className="py-2">{entry.hours} hrs</td>
                     <td className="py-2">{entry.date}</td>
                     <td className="py-2 space-x-2 flex items-center flex-wrap">
-                      <Button variant="ghost" size="icon">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setEditingId(entry._id);
+                          setValue("task", entry.task);
+                          setTaskValue(entry.task);
+                          setValue("hours", entry.hours);
+                          setValue(
+                            "date",
+                            format(new Date(entry.date), "yyyy-MM-dd")
+                          ); // input[type=date] needs yyyy-MM-dd
+                        }}
+                      >
                         <Pencil className="w-4 h-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => deleteEntry(idx)}
+                        onClick={() => deleteEntry(entry._id)}
                       >
                         <X className="w-4 h-4 text-red-500" />
                       </Button>
