@@ -87,7 +87,7 @@ const EmployeeRow = ({ emp, refetchh }) => {
             <TableCell className="">{emp.payment_date || "_ _ - _ _ -_ _ _ _"}</TableCell>
             <TableCell>{renderBadge(emp.isPaid)}</TableCell>
             <TableCell>
-                {!isPaid ? (
+                {!emp.isPaid ? (
                     <Button className="bg-indigo-600 hover:bg-indigo-700 text-white"
                         onClick={() => handlePay(emp._id)}
                     >
