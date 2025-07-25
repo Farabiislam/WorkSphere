@@ -6,7 +6,6 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = process.env.MONGODB_URL;
 
@@ -26,6 +25,7 @@ async function run() {
     const database = client.db("emp-db");
     const employeesCollection = database.collection("users");
     const worksCollection = database.collection("work");
+    const paymentsCollection = database.collection("payments");
 
     app.post("/register", async (req, res) => {
       const user = req.body;
@@ -60,6 +60,17 @@ async function run() {
         { $set: { isFired: true } }
       );
       res.send({ success: true, message: "User fired successfully." });
+    });
+
+    //update salary
+    app.patch("/update-salary/:id", async (req, res) => {
+      const { id } = req.params;
+      const { salary } = req.body;
+      const updatedUser = await employeesCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { monthlySalary: salary } }
+      );
+      res.send({ success: true, message: "User salary updated successfully." });
     });
 
     app.get("/users", async (req, res) => {
@@ -113,11 +124,11 @@ async function run() {
     // Get all employees for Hr
     app.get("/hr_employees", async (req, res) => {
       const query = { role: { $nin: ["admin", "hr"] }, isFired: { $ne: true } };
-      
+
       const users = await employeesCollection.find(query).toArray();
       res.send(users);
     });
-   
+
     // toggle Employee verified or not
 
     app.patch("/toggle-verify/:id", async (req, res) => {
@@ -138,14 +149,57 @@ async function run() {
 
       res.send({
         success: true,
-        message: `User verification status toggled to ${
-          !user.isVerified ? "verified" : "unverified"
-        }.`,
+        message: `User verification status toggled to ${!user.isVerified ? "verified" : "unverified"
+          }.`,
       });
     });
+    // Payment request from hr
+    app.post("/payments", async (req, res) => {
+      const paymentData = req.body;
 
+      try {
+        const result = await paymentsCollection.insertOne(paymentData);
+        res.send({
+          success: true,
+          message: "Payment request saved",
+          insertedId: result.insertedId,
+        });
+      } catch (err) {
+        console.error("Failed to save payment:", err);
+        res
+          .status(500)
+          .send({ success: false, message: "Failed to save payment" });
+      }
+    });
+    //fetch payroll data
+    app.get("/payroll", async (req, res) => {
+      const query = {};
+      const payrollData = await paymentsCollection.find(query).toArray();
+      res.send(payrollData);
+    });
 
+    // Check if payment is done
+    app.get("/payroll/status", async (req, res) => {
+      const { emp_id, month, year } = req.query;
+      const query = {
+        employee_id: emp_id,
+        month: month,
+        year: year,
+        isPaid: true,
+      };
+      const payment = await paymentsCollection.findOne(query);
+      if (payment) {
+        return res.send({ pay: true });
+      }
+      res.send({ pay: false });
+    });
+    //payment action
 
+    //payment action
+    app.patch("/payroll/:id", async (req, res) => {
+      const { id } = req.params;
+      const { isPaid } = req.body;
+      const currentTime = new Date().toLocaleDateString("en-US");
 
       try {
         // Find the document with the current ID to get emp_id, month, year
@@ -179,6 +233,9 @@ async function run() {
       }
     });
 
+    // Employee Details
+    const express = require("express");
+    const { ObjectId } = require("mongodb");
 
     // Get employee details with payment info (when `employee_id` is a string in payments)
     app.get("/employee/details/:id", async (req, res) => {
