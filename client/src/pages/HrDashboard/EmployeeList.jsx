@@ -132,6 +132,7 @@ const EmployeeList = () => {
       year,
       pay_req_date,
       payment_date: "",
+      isPaid:false,
     };
     console.log("Submitting payment request:", paymentData);
 
