@@ -23,6 +23,7 @@ const Payroll = () => {
   const { user } = useContext(AuthContext);
 
   const fetchPayrollData = async () => {
+
     const res = await axios.get(`${import.meta.env.VITE_API_URL}/payroll`);
     console.log("Payroll data fetched:", res.data);
 
@@ -36,7 +37,34 @@ const Payroll = () => {
     enabled: !!user?.email
   });
 
+  const handlePay = async (pay_id) => {
+    const pay = await axios.patch(`${import.meta.env.VITE_API_URL}/payroll/${pay_id}`, {
+      isPaid: true
+    });
+    if (pay.status === 200) {
+      toast.success("Payment successful:", pay.data);
+    } else {
+      console.error("Payment failed:", pay.data);
+    }
 
+    refetch();
+
+  }
+  const renderBadge = (status) => {
+    if (status === false) {
+      return (
+        <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
+          🟨 Pending
+        </Badge>
+      );
+    } else {
+      return (
+        <Badge className="bg-green-100 text-green-700 border-green-300">
+          ✅ Paid
+        </Badge>
+      );
+    }
+  };
 
 
 
@@ -64,36 +92,41 @@ const Payroll = () => {
           </TableHeader>
           <TableBody>
             {payrollData.map((emp) => {
-              
+              const initials = emp.employee_name
+                .split(" ")
+                .map((n) => n[0])
+                .join("");
               //const paid = isPaymentDone(emp.employee_id, emp.month, emp.year);
 
               //console.log("Payment status for", emp.employee_id, ":", paid);
               return (
-                <EmployeeRow emp={emp} refetchh={refetch} key={emp._id}/>
-                // <TableRow key={emp._id}>
-                //   <TableCell className="flex gap-3 items-center">
-                //     <div className="w-10 h-10 bg-indigo-300 text-white rounded-full flex items-center justify-center font-semibold">
-                //       {initials}
-                //     </div>
-                //     <div>
-                //       <div className="font-medium">{emp.employee_name}</div>
-                //       <div className="text-sm text-gray-500">Employee</div>
-                //     </div>
-                //   </TableCell>
-                //   <TableCell>{emp.salary}</TableCell>
-                //   <TableCell>{emp.month} , {emp.year}</TableCell>
-                //   <TableCell className="">{emp.payment_date || "_ _ - _ _ -_ _ _ _"}</TableCell>
-                //   <TableCell>{renderBadge(emp.isPaid)}</TableCell>
-                //   <TableCell>
-                //     { isPaid? (
-                //       <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                //         Pay Now
-                //       </Button>
-                //     ) : (
-                //       <span className="text-gray-500 text-sm">Pay Now</span>
-                //     )}
-                //   </TableCell>
-                // </TableRow>
+                //<EmployeeRow emp={emp} refetchh={refetch} key={emp._id}/>
+                <TableRow key={emp._id}>
+                  <TableCell className="flex gap-3 items-center">
+                    <div className="w-10 h-10 bg-indigo-300 text-white rounded-full flex items-center justify-center font-semibold">
+                      {initials}
+                    </div>
+                    <div>
+                      <div className="font-medium">{emp.employee_name}</div>
+                      <div className="text-sm text-gray-500">Employee</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>{emp.salary}</TableCell>
+                  <TableCell>{emp.month} , {emp.year}</TableCell>
+                  <TableCell className="">{emp.payment_date || "_ _ - _ _ -_ _ _ _"}</TableCell>
+                  <TableCell>{renderBadge(emp.isPaid||false)}</TableCell>
+                  <TableCell>
+                    {!emp.isPaid ? (
+                      <Button className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                        onClick={() => handlePay(emp._id)}
+                      >
+                        Pay Now
+                      </Button>
+                    ) : (
+                      <span className="text-gray-500 text-sm">Pay Now</span>
+                    )}
+                  </TableCell>
+                </TableRow>
               )
             })}
           </TableBody>
