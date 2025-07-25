@@ -19,6 +19,18 @@ import { useQuery } from "@tanstack/react-query";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import { toast } from "sonner";
 import axios from "axios";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { useEffect } from "react";
 
 // const allEmployees = [
 //   {
@@ -94,48 +106,57 @@ const EmployeeList = () => {
 
   // const totalPages = Math.ceil(filteredEmployees.length / ITEMS_PER_PAGE);
 
+  const currentYear = new Date().getFullYear();
+  const [yearList, setYearList] = useState([]);
+
+  useEffect(() => {
+    const years = [];
+    for (let i = currentYear - 10; i <= currentYear + 5; i++) {
+      years.push(i);
+    }
+    setYearList(years);
+  }, []);
+  const { user } = use(AuthContext);
+
+  const fetchEmployees = async () => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/hr_employees`);
+    if (!res.ok) throw new Error("Failed to fetch employees");
+    return res.json();
+  };
+  const {
+    data: employees = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["employees", user?.email],
+    queryFn: fetchEmployees,
+    enabled: !!user?.email,
+  });
+  console.log("Employees:", employees);
 
 
-    const { user } = use(AuthContext);
-
-    const fetchEmployees = async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/hr_employees`);
-      if (!res.ok) throw new Error("Failed to fetch employees");
-      return res.json();
-    };
-    const {
-      data: employees = [],
-      isLoading,
-      isError,
-      refetch,
-    } = useQuery({
-      queryKey: ["employees", user?.email],
-      queryFn: fetchEmployees,
-      enabled: !!user?.email,
-    });
-    console.log("Employees:", employees);
-
-
-    const toggleVerifyStatus = (id) => {
-      toast("Are you sure you want to toggle verification status?", {
-        action: {
-          label: "Confirm",
-          onClick: async () => {
-            try {
-              const res = await axios.patch(
-                `${import.meta.env.VITE_API_URL}/toggle-verify/${id}`
-              );
-              if (res.data.success) {
-                toast(res.data.message);
-                refetch(); // Refresh the employee list
-              }
-            } catch (err) {
-              console.error("Error toggling verification", err);
+  const toggleVerifyStatus = (id) => {
+    toast("Are you sure you want to toggle verification status?", {
+      action: {
+        label: "Confirm",
+        onClick: async () => {
+          try {
+            const res = await axios.patch(
+              `${import.meta.env.VITE_API_URL}/toggle-verify/${id}`
+            );
+            if (res.data.success) {
+              toast.success(res.data.message);
+              refetch(); // Refresh the employee list
             }
-          },
+          } catch (err) {
+            console.error("Error toggling verification", err);
+            toast.error("Failed to toggle verification status");
+          }
         },
-      });
-    };
+      },
+    });
+  };
 
   if (isLoading) return <p className="p-4">Loading...</p>;
   if (isError) return <p className="p-4 text-red-500">Error loading data</p>;
@@ -147,16 +168,16 @@ const EmployeeList = () => {
           <Input
             className="w-64"
             placeholder="Search employees..."
-            // value={search}
-            // onChange={(e) => {
-            //   setSearch(e.target.value);
-            //   setCurrentPage(1);
-            // }}
+          // value={search}
+          // onChange={(e) => {
+          //   setSearch(e.target.value);
+          //   setCurrentPage(1);
+          // }}
           />
           <Button
             variant="outline"
-            // variant={showOnlyVerified ? "default" : "outline"}
-            // onClick={() => setShowOnlyVerified((prev) => !prev)}
+          // variant={showOnlyVerified ? "default" : "outline"}
+          // onClick={() => setShowOnlyVerified((prev) => !prev)}
           >
             <Filter className="mr-2 h-4 w-4" /> Verified Only
           </Button>
@@ -215,14 +236,81 @@ const EmployeeList = () => {
                 </TableCell>
                 <TableCell>{emp.bankAccountNumber}</TableCell>
                 <TableCell>{emp.monthlySalary}</TableCell>
-                <TableCell className="space-x-2">
-                  <Button
-                    disabled={!emp.isVerified}
-                    variant="default"
-                    size="sm"
-                  >
-                    Pay
-                  </Button>
+                <TableCell className="space-x-2 flex items-center">
+                  <Dialog>
+                    <form>
+                      <DialogTrigger asChild>
+                        <Button
+                          disabled={!emp.isVerified}
+                          variant="default"
+                          size="sm"
+                        >
+                          Pay
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Edit Salary</DialogTitle>
+                          <DialogDescription>
+                            Make Payment to your employee here. Click payment request when you&apos;re
+                            done.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4">
+                          <div className="grid gap-3">
+                            <Label htmlFor="name-1">Employee Name</Label>
+                            <Input id="name-1" name="name" defaultValue={emp.fullName} disabled />
+                          </div>
+                          <div className="grid gap-3">
+                            <Label htmlFor="salary-1">Salary</Label>
+                            <Input id="salary-1" name="salary" defaultValue={emp.monthlySalary} disabled />
+                          </div>
+                          {/* Month */}
+                          <div className="grid gap-3">
+                            <Label htmlFor="month-1">Month</Label>
+                            <select
+                              id="month-1"
+                              name="month"
+                              className="border border-input bg-background px-3 py-2 rounded-md text-sm"
+                              required
+                            >
+                              <option value="">Select Month</option>
+                              {[
+                                "January", "February", "March", "April", "May", "June",
+                                "July", "August", "September", "October", "November", "December",
+                              ].map((month) => (
+                                <option key={month} value={month}>{month}</option>
+                              ))}
+                            </select>
+                          </div>
+                          {/* Year */}
+                          <div className="grid gap-3">
+                            <Label htmlFor="year-1">Year</Label>
+                            <select
+                              id="year-1"
+                              name="year"
+                              defaultValue={currentYear}
+                              className="border border-input bg-background px-3 py-2 rounded-md text-sm"
+                              required
+                            >
+                              <option value="">Select Year</option>
+                              {yearList.map((year) => (
+                                <option key={year} value={year}>{year}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                          </DialogClose>
+                          <DialogClose asChild>
+                            <Button type="submit" onClick={() => handlePay(emp._id)}>Payment request</Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </DialogContent>
+                    </form>
+                  </Dialog>
                   <Link
                     to={`/dashboard/employee-list/empolyeedetails/${emp.id}`}
                   >
@@ -254,16 +342,16 @@ const EmployeeList = () => {
           <Button
             size="sm"
             variant="outline"
-            // disabled={currentPage === 1}
-            // onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          // disabled={currentPage === 1}
+          // onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
           >
             Previous
           </Button>
           <Button
             size="sm"
             variant="outline"
-            // disabled={currentPage === totalPages}
-            // onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          // disabled={currentPage === totalPages}
+          // onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
           >
             Next
           </Button>
