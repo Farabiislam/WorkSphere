@@ -241,7 +241,7 @@ const EmployeeList = () => {
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
-                          <DialogTitle>Edit Salary</DialogTitle>
+                          <DialogTitle>Pay Salary</DialogTitle>
                           <DialogDescription>
                             Make Payment to your employee here. Click payment request when you&apos;re
                             done.
