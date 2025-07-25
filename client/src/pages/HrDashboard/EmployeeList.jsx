@@ -307,7 +307,7 @@ const EmployeeList = () => {
                     </form>
                   </Dialog>
                   <Link
-                    to={`/dashboard/employee-list/empolyeedetails/${emp.id}`}
+                    to={`/dashboard/employee-list/empolyeedetails/${emp._id}`}
                   >
                     <Button variant="outline" size="sm">
                       Details
