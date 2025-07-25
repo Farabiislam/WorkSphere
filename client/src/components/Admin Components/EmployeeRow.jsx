@@ -81,6 +81,7 @@ const EmployeeRow = ({ emp, refetchh }) => {
                     <div className="text-sm text-gray-500">Employee</div>
                 </div>
             </TableCell>
+            
             <TableCell>{emp.salary}</TableCell>
             <TableCell>{emp.month} , {emp.year}</TableCell>
             <TableCell className="">{emp.payment_date || "_ _ - _ _ -_ _ _ _"}</TableCell>
