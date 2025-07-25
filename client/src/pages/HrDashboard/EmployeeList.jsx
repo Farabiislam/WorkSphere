@@ -32,56 +32,6 @@ import {
 import { Label } from "@/components/ui/label"
 import { useEffect } from "react";
 
-// const allEmployees = [
-//   {
-//     name: "John Smith",
-//     email: "john.smith@company.com",
-//     verified: false,
-//     bank: "**** 1234",
-//     salary: "$75,000",
-//     role: "Software Engineer",
-//     initials: "JS",
-//   },
-//   {
-//     name: "Sarah Johnson",
-//     email: "sarah.johnson@company.com",
-//     verified: true,
-//     bank: "**** 5678",
-//     salary: "$85,000",
-//     role: "Senior Developer",
-//     initials: "SJ",
-//   },
-//   {
-//     name: "Michael Chen",
-//     email: "michael.chen@company.com",
-//     verified: false,
-//     bank: "**** 9012",
-//     salary: "$65,000",
-//     role: "Junior Developer",
-//     initials: "MC",
-//   },
-//   {
-//     name: "Emily Davis",
-//     email: "emily.davis@company.com",
-//     verified: true,
-//     bank: "**** 3456",
-//     salary: "$95,000",
-//     role: "Team Lead",
-//     initials: "ED",
-//   },
-//   {
-//     name: "David Wilson",
-//     email: "david.wilson@company.com",
-//     verified: false,
-//     bank: "**** 7890",
-//     salary: "$70,000",
-//     role: "QA Engineer",
-//     initials: "DW",
-//   },
-// ];
-
-// const ITEMS_PER_PAGE = 4;
-
 const EmployeeList = () => {
   // const [search, setSearch] = useState("");
   // const [currentPage, setCurrentPage] = useState(1);
@@ -107,7 +57,10 @@ const EmployeeList = () => {
   // const totalPages = Math.ceil(filteredEmployees.length / ITEMS_PER_PAGE);
 
   const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
   const [yearList, setYearList] = useState([]);
+  const [month, setMonth] = useState(currentMonth);
+  const [year, setYear] = useState(currentYear);
 
   useEffect(() => {
     const years = [];
@@ -115,6 +68,13 @@ const EmployeeList = () => {
       years.push(i);
     }
     setYearList(years);
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December",
+    ];
+    const monthString = months[currentMonth];
+    setMonth(monthString);
+
   }, []);
   const { user } = use(AuthContext);
 
@@ -157,6 +117,36 @@ const EmployeeList = () => {
       },
     });
   };
+  const handlePay = async(emp) => { 
+   
+    //convert number to month string
+
+    const pay_req_date = new Date().toISOString();
+   // console.log("data:",emp ,"handle pay", emp._id, "month:", month, "year:", year);
+    const paymentData = {
+      employee_id: emp._id,
+      employee_name: emp.fullName,
+      employee_email: emp.emailAddress,
+      salary: emp.monthlySalary,
+      month,
+      year,
+      pay_req_date,
+      payment_date: "",
+    };
+    console.log("Submitting payment request:", paymentData);
+
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/payments`, paymentData);
+      if (res.data.success) {
+        toast.success("Payment request submitted successfully");
+      } else {
+        toast.error("Failed to submit payment request");
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      toast.error("An error occurred while submitting payment");
+    }
+  }
 
   if (isLoading) return <p className="p-4">Loading...</p>;
   if (isError) return <p className="p-4 text-red-500">Error loading data</p>;
@@ -272,14 +262,17 @@ const EmployeeList = () => {
                               id="month-1"
                               name="month"
                               className="border border-input bg-background px-3 py-2 rounded-md text-sm"
+                              defaultValue={month}
                               required
+                              
+                              onChange={(e) => setMonth(e.target.value)}
                             >
-                              <option value="">Select Month</option>
+                              <option value="" >Select Month</option>
                               {[
                                 "January", "February", "March", "April", "May", "June",
                                 "July", "August", "September", "October", "November", "December",
                               ].map((month) => (
-                                <option key={month} value={month}>{month}</option>
+                                <option key={month} value={month} >{month}</option>
                               ))}
                             </select>
                           </div>
@@ -292,6 +285,7 @@ const EmployeeList = () => {
                               defaultValue={currentYear}
                               className="border border-input bg-background px-3 py-2 rounded-md text-sm"
                               required
+                              onChange={(e) => setYear(e.target.value)}
                             >
                               <option value="">Select Year</option>
                               {yearList.map((year) => (
@@ -305,7 +299,7 @@ const EmployeeList = () => {
                             <Button variant="outline">Cancel</Button>
                           </DialogClose>
                           <DialogClose asChild>
-                            <Button type="submit" onClick={() => handlePay(emp._id)}>Payment request</Button>
+                            <Button type="submit" onClick={() => handlePay(emp)}>Payment request</Button>
                           </DialogClose>
                         </DialogFooter>
                       </DialogContent>

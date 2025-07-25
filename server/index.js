@@ -25,6 +25,7 @@ async function run() {
     const database = client.db("emp-db");
     const employeesCollection = database.collection("users");
     const worksCollection = database.collection("work");
+    const paymentsCollection = database.collection("payments");
 
     app.post("/register", async (req, res) => {
       const user = req.body;
@@ -60,7 +61,7 @@ async function run() {
       );
       res.send({ success: true, message: "User fired successfully." });
     });
-    
+
     //update salary
     app.patch("/update-salary/:id", async (req, res) => {
       const { id } = req.params;
@@ -152,6 +153,18 @@ async function run() {
           !user.isVerified ? "verified" : "unverified"
         }.`,
       });
+    });
+    // Payment request from hr
+    app.post('/payments', async (req, res) => {
+      const paymentData = req.body;
+
+      try {
+        const result = await paymentsCollection.insertOne(paymentData);
+        res.send({ success: true, message: "Payment request saved", insertedId: result.insertedId });
+      } catch (err) {
+        console.error("Failed to save payment:", err);
+        res.status(500).send({ success: false, message: "Failed to save payment" });
+      }
     });
 
 
