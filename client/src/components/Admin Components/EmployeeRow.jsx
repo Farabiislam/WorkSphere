@@ -30,12 +30,13 @@ const EmployeeRow = ({ emp, refetchh }) => {
         console.log("Payment status fetched:", res.data.pay);
         return res.data.pay;
     }
-
-    const { data: isPaid={pay:false}, isLoading: statusLoading, refetch } = useQuery({
+    // Check if payment is done
+    const { data: suraiya, isLoading: statusLoading, refetch } = useQuery({
         queryKey: ['paymentStatus', emp.employee_id, emp.month, emp.year],
         queryFn: fetchPaymentStatus,
         enabled: !!emp.employee_id && !!emp.month && !!emp.year,
     });
+
    // refetchh();
     //console.log(isPaid)
     //pay action
@@ -48,11 +49,12 @@ const EmployeeRow = ({ emp, refetchh }) => {
         } else {
             console.error("Payment failed:", pay.data);
         }
-        refetchh();
+        
         refetch();
+        refetchh();
     }
-
-
+    refetch();
+    refetchh();
 
     const renderBadge = (status) => {
         if (status === false) {
@@ -69,6 +71,7 @@ const EmployeeRow = ({ emp, refetchh }) => {
             );
         }
     };
+    //console.log(suraiya)
 
     return (
         <TableRow key={emp._id}>
@@ -81,7 +84,7 @@ const EmployeeRow = ({ emp, refetchh }) => {
                     <div className="text-sm text-gray-500">Employee</div>
                 </div>
             </TableCell>
-            
+
             <TableCell>{emp.salary}</TableCell>
             <TableCell>{emp.month} , {emp.year}</TableCell>
             <TableCell className="">{emp.payment_date || "_ _ - _ _ -_ _ _ _"}</TableCell>

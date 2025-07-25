@@ -6,6 +6,7 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = process.env.MONGODB_URL;
 
@@ -146,6 +147,104 @@ async function run() {
 
 
 
+      try {
+        // Find the document with the current ID to get emp_id, month, year
+        const targetDoc = await paymentsCollection.findOne({
+          _id: new ObjectId(id),
+        });
+
+        if (!targetDoc) {
+          return res
+            .status(404)
+            .send({ success: false, message: "Payment record not found." });
+        }
+
+        const { emp_id, month, year } = targetDoc;
+
+        // Update all matching entries
+        const result = await paymentsCollection.updateMany(
+          { emp_id, month, year },
+          { $set: { isPaid: isPaid, payment_date: currentTime } }
+        );
+
+        res.send({
+          success: true,
+          message: `${result.modifiedCount} payments updated.`,
+        });
+      } catch (err) {
+        console.error("Failed to update payments:", err);
+        res
+          .status(500)
+          .send({ success: false, message: "Failed to update payments" });
+      }
+    });
+
+
+    // Get employee details with payment info (when `employee_id` is a string in payments)
+    app.get("/employee/details/:id", async (req, res) => {
+      const id = req.params.id;
+
+      try {
+        const result = await employeesCollection
+          .aggregate([
+            // Match the employee
+            {
+              $match: { _id: new ObjectId(id) },
+            },
+            // Convert _id to string
+            {
+              $addFields: {
+                string_id: { $toString: "$_id" },
+              },
+            },
+            // Lookup payments using string match
+            {
+              $lookup: {
+                from: "payments",
+                localField: "string_id",
+                foreignField: "employee_id", // this is a string
+                as: "payments",
+              },
+            },
+            // sort payments inside the document
+            {
+              $project: {
+                fullName: 1,
+                emailAddress: 1,
+                phoneNumber: 1,
+                role: 1,
+                bankAccountNumber: 1,
+                monthlySalary: 1,
+                designation: 1,
+                profilePhoto: 1,
+                isFired: 1,
+                created_at: 1,
+                payments: {
+                  $sortArray: {
+                    input: "$payments",
+                    sortBy: { year: 1, month: 1 },
+                  },
+                },
+              },
+            },
+          ])
+          .toArray();
+
+        if (!result || result.length === 0) {
+          return res
+            .status(404)
+            .json({ success: false, message: "Employee not found" });
+        }
+
+        const employee = result[0]; // Expected one
+        res.send(employee);
+      } catch (error) {
+        console.error("Error in employee details aggregation:", error);
+        res
+          .status(500)
+          .json({ success: false, message: "Internal server error" });
+      }
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
