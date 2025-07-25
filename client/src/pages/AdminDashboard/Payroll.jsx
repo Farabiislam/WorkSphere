@@ -12,72 +12,33 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-
-const payrollData = [
-  {
-    id: 1,
-    name: "John Smith",
-    salary: "$75,000",
-    monthYear: "December 2024",
-    paymentDate: "-",
-    status: "Pending",
-    avatar: "JS",
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    salary: "$85,000",
-    monthYear: "December 2024",
-    paymentDate: "-",
-    status: "Pending",
-    avatar: "SJ",
-  },
-  {
-    id: 3,
-    name: "Michael Chen",
-    salary: "$65,000",
-    monthYear: "December 2024",
-    paymentDate: "-",
-    status: "Pending",
-    avatar: "MC",
-  },
-  {
-    id: 4,
-    name: "Emily Davis",
-    salary: "$95,000",
-    monthYear: "December 2024",
-    paymentDate: "-",
-    status: "Pending",
-    avatar: "ED",
-  },
-  {
-    id: 5,
-    name: "David Wilson",
-    salary: "$70,000",
-    monthYear: "November 2024",
-    paymentDate: "2024-11-30",
-    status: "Paid",
-    avatar: "DW",
-  },
-];
+import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
+import { useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import { toast } from 'sonner';
+import EmployeeRow from '../../components/Admin Components/EmployeeRow';
 
 const Payroll = () => {
+  const { user } = useContext(AuthContext);
 
-  const renderBadge = (status) => {
-    if (status === "Pending") {
-      return (
-        <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300">
-          🟨 Pending
-        </Badge>
-      );
-    } else {
-      return (
-        <Badge className="bg-green-100 text-green-700 border-green-300">
-          ✅ Paid
-        </Badge>
-      );
-    }
+  const fetchPayrollData = async () => {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/payroll`);
+    console.log("Payroll data fetched:", res.data);
+
+    if (res.status !== 200) throw new Error("Failed to fetch employees");
+
+    return res.data;
   };
+  const { data: payrollData = [], isLoading, isError, refetch } = useQuery({
+    queryKey: ['payrollData', user?.email],
+    queryFn: fetchPayrollData,
+    enabled: !!user?.email
+  });
+
+
+
+
 
   return (
     <div className='p-2 sm:p-4'>
@@ -102,32 +63,39 @@ const Payroll = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {payrollData.map((emp) => (
-              <TableRow key={emp.id}>
-                <TableCell className="flex gap-3 items-center">
-                  <div className="w-10 h-10 bg-indigo-300 text-white rounded-full flex items-center justify-center font-semibold">
-                    {emp.avatar}
-                  </div>
-                  <div>
-                    <div className="font-medium">{emp.name}</div>
-                    <div className="text-sm text-gray-500">Employee</div>
-                  </div>
-                </TableCell>
-                <TableCell>{emp.salary}</TableCell>
-                <TableCell>{emp.monthYear}</TableCell>
-                <TableCell>{emp.paymentDate}</TableCell>
-                <TableCell>{renderBadge(emp.status)}</TableCell>
-                <TableCell>
-                  {emp.status === "Pending" ? (
-                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                      Pay Now
-                    </Button>
-                  ) : (
-                    <span className="text-gray-500 text-sm">Completed</span>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
+            {payrollData.map((emp) => {
+              
+              //const paid = isPaymentDone(emp.employee_id, emp.month, emp.year);
+
+              //console.log("Payment status for", emp.employee_id, ":", paid);
+              return (
+                <EmployeeRow emp={emp} refetchh={refetch} key={emp._id}/>
+                // <TableRow key={emp._id}>
+                //   <TableCell className="flex gap-3 items-center">
+                //     <div className="w-10 h-10 bg-indigo-300 text-white rounded-full flex items-center justify-center font-semibold">
+                //       {initials}
+                //     </div>
+                //     <div>
+                //       <div className="font-medium">{emp.employee_name}</div>
+                //       <div className="text-sm text-gray-500">Employee</div>
+                //     </div>
+                //   </TableCell>
+                //   <TableCell>{emp.salary}</TableCell>
+                //   <TableCell>{emp.month} , {emp.year}</TableCell>
+                //   <TableCell className="">{emp.payment_date || "_ _ - _ _ -_ _ _ _"}</TableCell>
+                //   <TableCell>{renderBadge(emp.isPaid)}</TableCell>
+                //   <TableCell>
+                //     { isPaid? (
+                //       <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                //         Pay Now
+                //       </Button>
+                //     ) : (
+                //       <span className="text-gray-500 text-sm">Pay Now</span>
+                //     )}
+                //   </TableCell>
+                // </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
 

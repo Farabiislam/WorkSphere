@@ -78,10 +78,11 @@ import { useForm } from 'react-hook-form';
 const AllEmployee = () => {
   const { user } = use(AuthContext)
   const [salary, setSalary] = useState("")
+  
   const fetchEmployees = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/employees`);
-    if (!res.ok) throw new Error("Failed to fetch employees");
-    return res.json();
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/employees`);
+    if (res.status !== 200) throw new Error("Failed to fetch employees");
+    return res.data;
   };
   const { data: employees = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['employees', user?.email],

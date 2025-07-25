@@ -166,6 +166,51 @@ async function run() {
         res.status(500).send({ success: false, message: "Failed to save payment" });
       }
     });
+    //fetch payroll data
+    app.get('/payroll', async (req, res) => {
+      const query = {};
+      const payrollData = await paymentsCollection.find(query).toArray();
+      res.send(payrollData);
+    });
+
+    // Check if payment is done
+    app.get('/payroll/status', async (req, res) => {
+      const { emp_id, month, year } = req.query;
+      const query = {
+        employee_id: emp_id,
+        month: month,
+        year: year,
+        isPaid: true
+      };
+      const payment = await paymentsCollection.findOne(query);
+      if (payment) {
+        return res.send({ pay:true} );
+      }
+      res.send({pay:false} );
+    });
+    //payment action
+    app.patch('/payroll/:id', async (req, res) => {
+      const { id } = req.params;
+      const { isPaid } = req.body;
+      //current time mm/dd/yyyy
+      const currentTime = new Date().toLocaleDateString("en-US");
+
+      try {
+        const result = await paymentsCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { isPaid: isPaid, payment_date: currentTime } }
+        );
+
+        if (result.modifiedCount === 0) {
+          return res.status(404).send({ success: false, message: "Payment not found or already updated." });
+        }
+
+        res.send({ success: true, message: "Payment status updated successfully." });
+      } catch (err) {
+        console.error("Failed to update payment:", err);
+        res.status(500).send({ success: false, message: "Failed to update payment" });
+      }
+    });
 
 
 
