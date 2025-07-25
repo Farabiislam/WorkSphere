@@ -25,7 +25,6 @@ async function run() {
     const database = client.db("emp-db");
     const employeesCollection = database.collection("users");
     const worksCollection = database.collection("work");
-    const paymentsCollection = database.collection("payments");
 
     app.post("/register", async (req, res) => {
       const user = req.body;
@@ -60,17 +59,6 @@ async function run() {
         { $set: { isFired: true } }
       );
       res.send({ success: true, message: "User fired successfully." });
-    });
-
-    //update salary
-    app.patch("/update-salary/:id", async (req, res) => {
-      const { id } = req.params;
-      const { salary } = req.body;
-      const updatedUser = await employeesCollection.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: { monthlySalary: salary } }
-      );
-      res.send({ success: true, message: "User salary updated successfully." });
     });
 
     app.get("/users", async (req, res) => {
@@ -124,11 +112,11 @@ async function run() {
     // Get all employees for Hr
     app.get("/hr_employees", async (req, res) => {
       const query = { role: { $nin: ["admin", "hr"] }, isFired: { $ne: true } };
-
+      
       const users = await employeesCollection.find(query).toArray();
       res.send(users);
     });
-
+   
     // toggle Employee verified or not
 
     app.patch("/toggle-verify/:id", async (req, res) => {
@@ -154,155 +142,10 @@ async function run() {
         }.`,
       });
     });
-    // Payment request from hr
-    app.post("/payments", async (req, res) => {
-      const paymentData = req.body;
 
-      try {
-        const result = await paymentsCollection.insertOne(paymentData);
-        res.send({
-          success: true,
-          message: "Payment request saved",
-          insertedId: result.insertedId,
-        });
-      } catch (err) {
-        console.error("Failed to save payment:", err);
-        res
-          .status(500)
-          .send({ success: false, message: "Failed to save payment" });
-      }
-    });
-    //fetch payroll data
-    app.get("/payroll", async (req, res) => {
-      const query = {};
-      const payrollData = await paymentsCollection.find(query).toArray();
-      res.send(payrollData);
-    });
 
-    // Check if payment is done
-    app.get("/payroll/status", async (req, res) => {
-      const { emp_id, month, year } = req.query;
-      const query = {
-        employee_id: emp_id,
-        month: month,
-        year: year,
-        isPaid: true,
-      };
-      const payment = await paymentsCollection.findOne(query);
-      if (payment) {
-        return res.send({ pay: true });
-      }
-      res.send({ pay: false });
-    });
-    //payment action
 
-    //payment action
-    app.patch("/payroll/:id", async (req, res) => {
-      const { id } = req.params;
-      const { isPaid } = req.body;
-      const currentTime = new Date().toLocaleDateString("en-US");
 
-      try {
-        // Find the document with the current ID to get emp_id, month, year
-        const targetDoc = await paymentsCollection.findOne({
-          _id: new ObjectId(id),
-        });
-
-        if (!targetDoc) {
-          return res
-            .status(404)
-            .send({ success: false, message: "Payment record not found." });
-        }
-
-        const { emp_id, month, year } = targetDoc;
-
-        // Update all matching entries
-        const result = await paymentsCollection.updateMany(
-          { emp_id, month, year },
-          { $set: { isPaid: isPaid, payment_date: currentTime } }
-        );
-
-        res.send({
-          success: true,
-          message: `${result.modifiedCount} payments updated.`,
-        });
-      } catch (err) {
-        console.error("Failed to update payments:", err);
-        res
-          .status(500)
-          .send({ success: false, message: "Failed to update payments" });
-      }
-    });
-
-    // Employee Details
-    const express = require("express");
-    const { ObjectId } = require("mongodb");
-
-    // Get employee details with payment info (when `employee_id` is a string in payments)
-    app.get("/employee/details/:id", async (req, res) => {
-      const id = req.params.id;
-
-      try {
-        const result = await employeesCollection
-          .aggregate([
-            // Match the employee
-            {
-              $match: { _id: new ObjectId(id) },
-            },
-            // Convert _id to string
-            {
-              $addFields: {
-                string_id: { $toString: "$_id" },
-              },
-            },
-            // Lookup payments using string match
-            {
-              $lookup: {
-                from: "payments",
-                localField: "string_id",
-                foreignField: "employee_id", // this is a string
-                as: "payments",
-              },
-            },
-            // sort payments inside the document
-            {
-              $project: {
-                fullName: 1,
-                emailAddress: 1,
-                phoneNumber: 1,
-                role: 1,
-                bankAccountNumber: 1,
-                monthlySalary: 1,
-                designation: 1,
-                profilePhoto: 1,
-                isFired: 1,
-                created_at: 1,
-                payments: {
-                  $sortArray: {
-                    input: "$payments",
-                    sortBy: { year: 1, month: 1 },
-                  },
-                },
-              },
-            },
-          ])
-          .toArray();
-
-        if (!result || result.length === 0) {
-          return res
-            .status(404)
-            .json({ success: false, message: "Employee not found" });
-        }
-
-        const employee = result[0]; // Expected one
-        res.send(employee);
-      } catch (error) {
-        console.error("Error in employee details aggregation:", error);
-        res
-          .status(500)
-          .json({ success: false, message: "Internal server error" });
-      }
-    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
