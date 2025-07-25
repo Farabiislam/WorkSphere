@@ -125,11 +125,11 @@ async function run() {
     // Get all employees for Hr
     app.get("/hr_employees", async (req, res) => {
       const query = { role: { $nin: ["admin", "hr"] }, isFired: { $ne: true } };
-      
+
       const users = await employeesCollection.find(query).toArray();
       res.send(users);
     });
-   
+
     // toggle Employee verified or not
 
     app.patch("/toggle-verify/:id", async (req, res) => {
@@ -156,60 +156,82 @@ async function run() {
       });
     });
     // Payment request from hr
-    app.post('/payments', async (req, res) => {
+    app.post("/payments", async (req, res) => {
       const paymentData = req.body;
 
       try {
         const result = await paymentsCollection.insertOne(paymentData);
-        res.send({ success: true, message: "Payment request saved", insertedId: result.insertedId });
+        res.send({
+          success: true,
+          message: "Payment request saved",
+          insertedId: result.insertedId,
+        });
       } catch (err) {
         console.error("Failed to save payment:", err);
-        res.status(500).send({ success: false, message: "Failed to save payment" });
+        res
+          .status(500)
+          .send({ success: false, message: "Failed to save payment" });
       }
     });
-         //fetch payroll data
-    app.get('/payroll', async (req, res) => {
+    //fetch payroll data
+    app.get("/payroll", async (req, res) => {
       const query = {};
       const payrollData = await paymentsCollection.find(query).toArray();
       res.send(payrollData);
     });
 
     // Check if payment is done
-    app.get('/payroll/status', async (req, res) => {
+    app.get("/payroll/status", async (req, res) => {
       const { emp_id, month, year } = req.query;
       const query = {
         employee_id: emp_id,
         month: month,
         year: year,
-        isPaid: true
+        isPaid: true,
       };
       const payment = await paymentsCollection.findOne(query);
       if (payment) {
-        return res.send({ pay:true} );
+        return res.send({ pay: true });
       }
-      res.send({pay:false} );
+      res.send({ pay: false });
     });
     //payment action
-    app.patch('/payroll/:id', async (req, res) => {
+
+    //payment action
+    app.patch("/payroll/:id", async (req, res) => {
       const { id } = req.params;
       const { isPaid } = req.body;
-      //current time mm/dd/yyyy
       const currentTime = new Date().toLocaleDateString("en-US");
 
       try {
-        const result = await paymentsCollection.updateOne(
-          { _id: new ObjectId(id) },
+        // Find the document with the current ID to get emp_id, month, year
+        const targetDoc = await paymentsCollection.findOne({
+          _id: new ObjectId(id),
+        });
+
+        if (!targetDoc) {
+          return res
+            .status(404)
+            .send({ success: false, message: "Payment record not found." });
+        }
+
+        const { emp_id, month, year } = targetDoc;
+
+        // Update all matching entries
+        const result = await paymentsCollection.updateMany(
+          { emp_id, month, year },
           { $set: { isPaid: isPaid, payment_date: currentTime } }
         );
 
-        if (result.modifiedCount === 0) {
-          return res.status(404).send({ success: false, message: "Payment not found or already updated." });
-        }
-
-        res.send({ success: true, message: "Payment status updated successfully." });
+        res.send({
+          success: true,
+          message: `${result.modifiedCount} payments updated.`,
+        });
       } catch (err) {
-        console.error("Failed to update payment:", err);
-        res.status(500).send({ success: false, message: "Failed to update payment" });
+        console.error("Failed to update payments:", err);
+        res
+          .status(500)
+          .send({ success: false, message: "Failed to update payments" });
       }
     });
 
@@ -236,7 +258,7 @@ async function run() {
               $lookup: {
                 from: "payments",
                 localField: "string_id",
-                foreignField: "employee_id", // this is a string 
+                foreignField: "employee_id", // this is a string
                 as: "payments",
               },
             },
@@ -279,8 +301,6 @@ async function run() {
           .json({ success: false, message: "Internal server error" });
       }
     });
-
-
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
