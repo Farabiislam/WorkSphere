@@ -190,7 +190,7 @@ const AllEmployee = () => {
                       <Dialog>
                         <form>
                           <DialogTrigger asChild>
-                            <p>{emp.monthlySalary || 20000}</p>
+                            <p className='cursor-pointer'>{emp.monthlySalary || 20000}</p>
                           </DialogTrigger>
                           <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
