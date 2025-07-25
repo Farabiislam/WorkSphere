@@ -60,7 +60,7 @@ async function run() {
       );
       res.send({ success: true, message: "User fired successfully." });
     });
-    
+
     app.get("/users", async (req, res) => {
       const email = req.query.email;
       const query = { emailAddress: email };
@@ -109,6 +109,43 @@ async function run() {
       const users = await employeesCollection.find(query).toArray();
       res.send(users);
     });
+    // Get all employees for Hr
+    app.get("/hr_employees", async (req, res) => {
+      const query = { role: { $nin: ["admin", "hr"] }, isFired: { $ne: true } };
+      
+      const users = await employeesCollection.find(query).toArray();
+      res.send(users);
+    });
+   
+    // toggle Employee verified or not
+
+    app.patch("/toggle-verify/:id", async (req, res) => {
+      const { id } = req.params;
+
+      const user = await employeesCollection.findOne({ _id: new ObjectId(id) });
+
+      if (!user) {
+        return res
+          .status(404)
+          .send({ success: false, message: "User not found." });
+      }
+
+      const updatedUser = await employeesCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { isVerified: !user.isVerified } }
+      );
+
+      res.send({
+        success: true,
+        message: `User verification status toggled to ${
+          !user.isVerified ? "verified" : "unverified"
+        }.`,
+      });
+    });
+
+
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
