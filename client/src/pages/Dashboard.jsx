@@ -10,7 +10,7 @@ const Dashboard = () => {
     return (
         <div>
             <Navbar />
-            <Toaster position='top-right'/>
+            <Toaster position='top-right' richColors/>
             <div className='min-h-screen flex'>
                 <aside className="hidden sm:flex sm:flex-col w-50 bg-secondary border-r min-h-screen">
                     <nav className="p-4 space-y-2">

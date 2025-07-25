@@ -60,6 +60,17 @@ async function run() {
       );
       res.send({ success: true, message: "User fired successfully." });
     });
+    
+    //update salary
+    app.patch("/update-salary/:id", async (req, res) => {
+      const { id } = req.params;
+      const { salary } = req.body;
+      const updatedUser = await employeesCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { monthlySalary: salary } }
+      );
+      res.send({ success: true, message: "User salary updated successfully." });
+    });
 
     app.get("/users", async (req, res) => {
       const email = req.query.email;
