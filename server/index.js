@@ -6,6 +6,7 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = process.env.MONGODB_URL;
 
@@ -212,9 +213,6 @@ async function run() {
       }
     });
 
-    // Employee Details
-    const express = require("express");
-    const { ObjectId } = require("mongodb");
 
     // Get employee details with payment info (when `employee_id` is a string in payments)
     app.get("/employee/details/:id", async (req, res) => {
