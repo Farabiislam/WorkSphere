@@ -317,7 +317,7 @@ async function run() {
       const email = req.query.email
       const query = { employee_email: email,isPaid:true };
       const history = await paymentsCollection.find(query).toArray()
-      res.send(history)
+      res.send(history.reverse())
       
     })
 
