@@ -149,9 +149,8 @@ async function run() {
 
       res.send({
         success: true,
-        message: `User verification status toggled to ${
-          !user.isVerified ? "verified" : "unverified"
-        }.`,
+        message: `User verification status toggled to ${!user.isVerified ? "verified" : "unverified"
+          }.`,
       });
     });
     // Payment request from hr
@@ -182,21 +181,19 @@ async function run() {
     // Check if payment is done
     app.get("/payroll/status", async (req, res) => {
       const { emp_id, month, year } = req.query;
-
-      try {
-        const isPaid = await paymentsCollection.findOne({
-          emp_id,
-          month,
-          year,
-          isPaid: true, // any paid one disables all
-        });
-
-        res.send({ pay: !!isPaid }); // true if any paid found
-      } catch (err) {
-        console.error("Error checking payment status:", err);
-        res.status(500).send({ pay: false });
+      const query = {
+        employee_id: emp_id,
+        month: month,
+        year: year,
+        isPaid: true,
+      };
+      const payment = await paymentsCollection.findOne(query);
+      if (payment) {
+        return res.send({ pay: true });
       }
+      res.send({ pay: false });
     });
+    //payment action
 
     //payment action
     app.patch("/payroll/:id", async (req, res) => {
@@ -205,32 +202,34 @@ async function run() {
       const currentTime = new Date().toLocaleDateString("en-US");
 
       try {
-        // First, get the original record
-        const target = await paymentsCollection.findOne({
+        // Find the document with the current ID to get emp_id, month, year
+        const targetDoc = await paymentsCollection.findOne({
           _id: new ObjectId(id),
         });
 
-        if (!target) {
+        if (!targetDoc) {
           return res
             .status(404)
-            .send({ success: false, message: "Payment not found." });
+            .send({ success: false, message: "Payment record not found." });
         }
 
-        const { emp_id, month, year } = target;
+        const { emp_id, month, year } = targetDoc;
 
-        // Update all matching payment requests for same emp/month/year
+        // Update all matching entries
         const result = await paymentsCollection.updateMany(
           { emp_id, month, year },
-          { $set: { isPaid, payment_date: currentTime } }
+          { $set: { isPaid: isPaid, payment_date: currentTime } }
         );
 
         res.send({
           success: true,
-          message: `${result.modifiedCount} records updated.`,
+          message: `${result.modifiedCount} payments updated.`,
         });
       } catch (err) {
-        console.error("Update failed:", err);
-        res.status(500).send({ success: false });
+        console.error("Failed to update payments:", err);
+        res
+          .status(500)
+          .send({ success: false, message: "Failed to update payments" });
       }
     });
 
@@ -297,6 +296,29 @@ async function run() {
         res
           .status(500)
           .json({ success: false, message: "Internal server error" });
+      }
+    });
+    //fetching work records for hr dashboard
+
+    app.get("/work-progress", async (req, res) => {
+      try {
+        const works = await worksCollection.aggregate([
+          {
+            $lookup: {
+              from: "users",
+              localField: "email",
+              foreignField: "emailAddress",
+              as: "employeeInfo"
+            }
+          },
+          { $unwind: "$employeeInfo" },
+          { $sort: { date: -1 } }
+        ]).toArray();
+
+        res.send(works);
+      } catch (error) {
+        console.error("Failed to fetch work progress:", error);
+        res.status(500).send("Internal Server Error");
       }
     });
 
