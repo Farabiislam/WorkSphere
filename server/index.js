@@ -197,31 +197,30 @@ async function run() {
     //   }
     // });
 
-    // Make payment as paid
-        app.patch("/payroll/:id", async (req, res) => {
-          const { id } = req.params;
-          const { isPaid, employee_id } = req.body;
+    // Make payment as paid from admin
+    app.patch("/payroll/:id", async (req, res) => {
+      const { id } = req.params;
+      const { isPaid, employee_id } = req.body;
 
-          const currentTime = new Date().toLocaleDateString("en-US");
+      const currentTime = new Date().toLocaleDateString("en-US");
 
-          try {
-          
-            // console.log(`Making payment as paid for employee: ${employee_id}`);
+      try {
+        // console.log(`Making payment as paid for employee: ${employee_id}`);
 
-            const result = await paymentsCollection.updateOne(
-              { _id: new ObjectId(id) },
-              { $set: { isPaid, payment_date: currentTime } }
-            );
+        const result = await paymentsCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { isPaid, payment_date: currentTime } }
+        );
 
-            res.send({
-              success: result.modifiedCount > 0,
-              message: `${result.modifiedCount} record updated.`,
-            });
-          } catch (err) {
-            console.error("Update failed:", err);
-            res.status(500).send({ success: false });
-          }
+        res.send({
+          success: result.modifiedCount > 0,
+          message: `${result.modifiedCount} record updated.`,
         });
+      } catch (err) {
+        console.error("Update failed:", err);
+        res.status(500).send({ success: false });
+      }
+    });
 
     // Get employee details with payment info (when `employee_id` is a string in payments)
     app.get("/employee/details/:id", async (req, res) => {
@@ -288,22 +287,24 @@ async function run() {
           .json({ success: false, message: "Internal server error" });
       }
     });
-    //fetching work records for hr dashboard
 
+    //fetching work records for hr dashboard
     app.get("/work-progress", async (req, res) => {
       try {
-        const works = await worksCollection.aggregate([
-          {
-            $lookup: {
-              from: "users",
-              localField: "email",
-              foreignField: "emailAddress",
-              as: "employeeInfo"
-            }
-          },
-          { $unwind: "$employeeInfo" },
-          { $sort: { date: -1 } }
-        ]).toArray();
+        const works = await worksCollection
+          .aggregate([
+            {
+              $lookup: {
+                from: "users",
+                localField: "email",
+                foreignField: "emailAddress",
+                as: "employeeInfo",
+              },
+            },
+            { $unwind: "$employeeInfo" },
+            { $sort: { date: -1 } },
+          ])
+          .toArray();
 
         res.send(works);
       } catch (error) {
