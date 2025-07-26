@@ -19,7 +19,7 @@ import { toast } from "sonner";
 const Payroll = () => {
   const { user } = useContext(AuthContext);
 
-  // Fetch all payroll records
+  // Fetch payroll data
   const fetchPayrollData = async () => {
     const res = await axios.get(`${import.meta.env.VITE_API_URL}/payroll`);
     if (res.status !== 200) throw new Error("Failed to fetch payroll");
@@ -37,19 +37,25 @@ const Payroll = () => {
     enabled: !!user?.email,
   });
 
-  const handlePay = async (pay_id) => {
-    const pay = await axios.patch(
-      `${import.meta.env.VITE_API_URL}/payroll/${pay_id}`,
-      {
-        isPaid: true,
-      }
-    );
+  // ✅ Handle payment
+  const handlePay = async (pay_id, employee_id) => {
+    try {
+      const pay = await axios.patch(
+        `${import.meta.env.VITE_API_URL}/payroll/${pay_id}`,
+        {
+          isPaid: true,
+          employee_id,
+        }
+      );
 
-    if (pay.status === 200) {
-      toast.success("Payment successful");
-      refetch();
-    } else {
-      toast.error("Payment failed");
+      if (pay.status === 200) {
+        toast.success("Payment successful");
+        refetch();
+      } else {
+        toast.error("Payment failed");
+      }
+    } catch (error) {
+      toast.error("Payment error",error);
     }
   };
 
@@ -64,7 +70,7 @@ const Payroll = () => {
       </Badge>
     );
 
-  // Create a map to track if any group is already paid
+  // Group key map for disabling buttons
   const paymentGroupMap = {};
   payrollData.forEach((record) => {
     const key = `${record.employee_id}-${record.month}-${record.year}`;
@@ -74,8 +80,10 @@ const Payroll = () => {
       paymentGroupMap[key] = paymentGroupMap[key] || record.isPaid;
     }
   });
+
   if (isLoading) return <p className="p-4">Loading...</p>;
   if (isError) return <p className="p-4 text-red-500">Error loading data</p>;
+
   return (
     <div className="p-2 sm:p-4">
       <Card className="p-6 w-full overflow-auto">
@@ -138,7 +146,8 @@ const Payroll = () => {
                     ) : (
                       <Button
                         className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                        onClick={() => handlePay(emp._id)}
+                        onClick={() => handlePay(emp._id, emp.employee_id)}
+                        disabled={groupIsPaid}
                       >
                         Pay Now
                       </Button>

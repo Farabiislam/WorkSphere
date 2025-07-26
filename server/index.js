@@ -179,60 +179,50 @@ async function run() {
       res.send(payrollData);
     });
 
-    // Check if payment is done
-    app.get("/payroll/status", async (req, res) => {
-      const { emp_id, month, year } = req.query;
+    // // Check if payment is done
+    // app.get("/payroll/status", async (req, res) => {
+    //   const { employee_id, month, year } = req.query;
 
-      try {
-        const isPaid = await paymentsCollection.findOne({
-          emp_id,
-          month,
-          year,
-          isPaid: true, // any paid one disables all
+    //   try {
+    //     const isPaid = await paymentsCollection.findOne({
+    //       employee_id,
+    //       month,
+    //       year,
+    //       isPaid: true,
+    //     });
+
+    //     res.send({ pay: !!isPaid });
+    //   } catch (err) {
+    //     console.error("Error checking payment status:", err);
+    //     res.status(500).send({ pay: false });
+    //   }
+    // });
+
+    // Make payment as paid
+        app.patch("/payroll/:id", async (req, res) => {
+          const { id } = req.params;
+          const { isPaid, employee_id } = req.body;
+
+          const currentTime = new Date().toLocaleDateString("en-US");
+
+          try {
+          
+            // console.log(`Making payment as paid for employee: ${employee_id}`);
+
+            const result = await paymentsCollection.updateOne(
+              { _id: new ObjectId(id) },
+              { $set: { isPaid, payment_date: currentTime } }
+            );
+
+            res.send({
+              success: result.modifiedCount > 0,
+              message: `${result.modifiedCount} record updated.`,
+            });
+          } catch (err) {
+            console.error("Update failed:", err);
+            res.status(500).send({ success: false });
+          }
         });
-
-        res.send({ pay: !!isPaid }); // true if any paid found
-      } catch (err) {
-        console.error("Error checking payment status:", err);
-        res.status(500).send({ pay: false });
-      }
-    });
-
-    //payment action
-    app.patch("/payroll/:id", async (req, res) => {
-      const { id } = req.params;
-      const { isPaid } = req.body;
-      const currentTime = new Date().toLocaleDateString("en-US");
-
-      try {
-        // First, get the original record
-        const target = await paymentsCollection.findOne({
-          _id: new ObjectId(id),
-        });
-
-        if (!target) {
-          return res
-            .status(404)
-            .send({ success: false, message: "Payment not found." });
-        }
-
-        const { emp_id, month, year } = target;
-
-        // Update all matching payment requests for same emp/month/year
-        const result = await paymentsCollection.updateMany(
-          { emp_id, month, year },
-          { $set: { isPaid, payment_date: currentTime } }
-        );
-
-        res.send({
-          success: true,
-          message: `${result.modifiedCount} records updated.`,
-        });
-      } catch (err) {
-        console.error("Update failed:", err);
-        res.status(500).send({ success: false });
-      }
-    });
 
     // Get employee details with payment info (when `employee_id` is a string in payments)
     app.get("/employee/details/:id", async (req, res) => {
