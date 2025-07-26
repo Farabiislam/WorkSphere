@@ -19,19 +19,10 @@ const PAGE_SIZE = 5;
 const PaymentHistory = () => {
   const [payments, setPayments] = useState(paymentData);
   const [page, setPage] = useState(1);
+  
 
   const totalPages = Math.ceil(payments.length / PAGE_SIZE);
   const paginated = payments.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
-  const deletePayment = (index) => {
-    const globalIndex = (page - 1) * PAGE_SIZE + index;
-    const updated = [...payments];
-    updated.splice(globalIndex, 1);
-    setPayments(updated);
-    if ((page - 1) * PAGE_SIZE >= updated.length && page > 1) {
-      setPage(page - 1);
-    }
-  };
 
   return (
     <Card className="max-w-5xl mx-auto mt-10">

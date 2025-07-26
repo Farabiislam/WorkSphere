@@ -212,7 +212,7 @@ async function run() {
               { _id: new ObjectId(id) },
               { $set: { isPaid, payment_date: currentTime } }
             );
-            
+
             res.send({
               success: result.modifiedCount > 0,
               message: `${result.modifiedCount} record updated.`,
@@ -311,6 +311,14 @@ async function run() {
         res.status(500).send("Internal Server Error");
       }
     });
+    //fetch single user payment data list
+    app.get("/payment-history", async (req, res) => {
+      const email = req.query.email
+      const query = { employee_email: email,isPaid:true };
+      const history = await paymentsCollection.find(query).toArray()
+      res.send(history)
+      
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
