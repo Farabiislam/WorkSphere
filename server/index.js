@@ -149,9 +149,8 @@ async function run() {
 
       res.send({
         success: true,
-        message: `User verification status toggled to ${
-          !user.isVerified ? "verified" : "unverified"
-        }.`,
+        message: `User verification status toggled to ${!user.isVerified ? "verified" : "unverified"
+          }.`,
       });
     });
     // Payment request from hr
@@ -287,6 +286,29 @@ async function run() {
         res
           .status(500)
           .json({ success: false, message: "Internal server error" });
+      }
+    });
+    //fetching work records for hr dashboard
+
+    app.get("/work-progress", async (req, res) => {
+      try {
+        const works = await worksCollection.aggregate([
+          {
+            $lookup: {
+              from: "users",
+              localField: "email",
+              foreignField: "emailAddress",
+              as: "employeeInfo"
+            }
+          },
+          { $unwind: "$employeeInfo" },
+          { $sort: { date: -1 } }
+        ]).toArray();
+
+        res.send(works);
+      } catch (error) {
+        console.error("Failed to fetch work progress:", error);
+        res.status(500).send("Internal Server Error");
       }
     });
 
