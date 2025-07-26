@@ -7,17 +7,6 @@ import axios from "axios";
 import { use } from "react";
 import { AuthContext } from "../../context/AuthContext";
 
-// const paymentData = [
-//   { month: "January", year:"2024", amount: "$5,500", transactionId: "TXN-2024-001" },
-//   { month: "February", year: "2024", amount: "$5,500", transactionId: "TXN-2024-002" },
-//   { month: "March ", year: "2024", amount: "$5,750", transactionId: "TXN-2024-003" },
-//   { month: "April ", year: "2024", amount: "$5,750", transactionId: "TXN-2024-004" },
-//   { month: "May ", year: "2024", amount: "$6,000", transactionId: "TXN-2024-005" },
-//   { month: "June ", year: "2024", amount: "$6,000", transactionId: "TXN-2024-006" },
-//   { month: "July ", year: "2024", amount: "$6,250", transactionId: "TXN-2024-007" },
-//   { month: "August", year: "2024", amount: "$6,250", transactionId: "TXN-2024-008" },
-// ];
-
 const PAGE_SIZE = 5;
 
 const PaymentHistory = () => {
