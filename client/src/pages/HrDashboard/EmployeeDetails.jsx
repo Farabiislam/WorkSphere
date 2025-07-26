@@ -49,10 +49,27 @@ const EmployeeDetails = () => {
     payments = [],
   } = employee;
 
-  const salaryData = payments.map((p) => ({
-    month: p.month,
-    amount: p.salary,
-  }));
+ const monthOrder = [
+   "January",
+   "February",
+   "March",
+   "April",
+   "May",
+   "June",
+   "July",
+   "August",
+   "September",
+   "October",
+   "November",
+   "December",
+ ];
+
+ const salaryData = payments
+   .map((p) => ({
+     month: p.month,
+     amount: p.salary,
+   }))
+   .sort((a, b) => monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">

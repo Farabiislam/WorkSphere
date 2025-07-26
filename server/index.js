@@ -149,8 +149,9 @@ async function run() {
 
       res.send({
         success: true,
-        message: `User verification status toggled to ${!user.isVerified ? "verified" : "unverified"
-          }.`,
+        message: `User verification status toggled to ${
+          !user.isVerified ? "verified" : "unverified"
+        }.`,
       });
     });
     // Payment request from hr
@@ -222,9 +223,13 @@ async function run() {
       }
     });
 
-    // Get employee details with payment info (when `employee_id` is a string in payments)
+
+    // Get employee details
     app.get("/employee/details/:id", async (req, res) => {
       const id = req.params.id;
+
+      // Get current year from system time
+      const currentYear = new Date().getFullYear();
 
       try {
         const result = await employeesCollection
@@ -233,22 +238,22 @@ async function run() {
             {
               $match: { _id: new ObjectId(id) },
             },
-            // Convert _id to string
+            // Convert _id to string for lookup
             {
               $addFields: {
                 string_id: { $toString: "$_id" },
               },
             },
-            // Lookup payments using string match
+            // Lookup payments by employee_id
             {
               $lookup: {
                 from: "payments",
                 localField: "string_id",
-                foreignField: "employee_id", // this is a string
+                foreignField: "employee_id",
                 as: "payments",
               },
             },
-            // sort payments inside the document
+            // Filter and sort only paid payments from current year
             {
               $project: {
                 fullName: 1,
@@ -262,9 +267,20 @@ async function run() {
                 isFired: 1,
                 created_at: 1,
                 payments: {
-                  $sortArray: {
-                    input: "$payments",
-                    sortBy: { year: 1, month: 1 },
+                  $filter: {
+                    input: {
+                      $sortArray: {
+                        input: "$payments",
+                        sortBy: { month: 1 },
+                      },
+                    },
+                    as: "payment",
+                    cond: {
+                      $and: [
+                        { $eq: ["$$payment.isPaid", true] },
+                        { $eq: ["$$payment.year", currentYear] },
+                      ],
+                    },
                   },
                 },
               },
@@ -278,7 +294,7 @@ async function run() {
             .json({ success: false, message: "Employee not found" });
         }
 
-        const employee = result[0]; // Expected one
+        const employee = result[0];
         res.send(employee);
       } catch (error) {
         console.error("Error in employee details aggregation:", error);
@@ -314,12 +330,11 @@ async function run() {
     });
     //fetch single user payment data list
     app.get("/payment-history", async (req, res) => {
-      const email = req.query.email
-      const query = { employee_email: email,isPaid:true };
-      const history = await paymentsCollection.find(query).toArray()
-      res.send(history)
-      
-    })
+      const email = req.query.email;
+      const query = { employee_email: email, isPaid: true };
+      const history = await paymentsCollection.find(query).toArray();
+      res.send(history);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
