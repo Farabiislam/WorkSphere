@@ -228,7 +228,6 @@ async function run() {
     app.get("/employee/details/:id", async (req, res) => {
       const id = req.params.id;
 
-      // Get current year from system time
       const currentYear = new Date().getFullYear();
 
       try {

@@ -89,7 +89,7 @@ const AllEmployee = () => {
     queryFn: fetchEmployees,
     enabled: !!user?.email,
   });
-  console.log("Employees:", employees);
+ // console.log("Employees:", employees);
 
   const makeHR = async (id) => {
     const res = await axios.patch(`${import.meta.env.VITE_API_URL}/make-hr/${id}`);

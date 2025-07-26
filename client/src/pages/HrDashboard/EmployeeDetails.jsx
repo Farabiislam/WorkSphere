@@ -144,6 +144,7 @@ const EmployeeDetails = () => {
                 <YAxis />
                 <Tooltip />
                 <Bar dataKey="amount" fill="#5B21B6" />
+                <Bar dataKey="month" fill="#5B21B6" />
               </BarChart>
             </ResponsiveContainer>
           ) : (

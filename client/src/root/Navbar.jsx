@@ -164,7 +164,9 @@ const Navbar = () => {
                                         )
                                     )
                                 }
-                            </>)}
+                            </>)
+                            }
+                            
                             {user && <NavigationMenuItem><NavLink to="/dashboard">Dashboard</NavLink></NavigationMenuItem>}
 
                             <NavigationMenuItem><NavLink to="/contact">Contact Us</NavLink></NavigationMenuItem>
