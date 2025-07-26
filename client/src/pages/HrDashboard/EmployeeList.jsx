@@ -282,7 +282,7 @@ const EmployeeList = () => {
                             <select
                               id="year-1"
                               name="year"
-                              defaultValue={currentYear}
+                              defaultValue={year}
                               className="border border-input bg-background px-3 py-2 rounded-md text-sm"
                               required
                               onChange={(e) => setYear(e.target.value)}

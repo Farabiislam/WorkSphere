@@ -3,21 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowUpDown, X } from "lucide-react";
 
-const initialData = [
-  { month: "January 2024", amount: "$5,500", transactionId: "TXN-2024-001" },
-  { month: "February 2024", amount: "$5,500", transactionId: "TXN-2024-002" },
-  { month: "March 2024", amount: "$5,750", transactionId: "TXN-2024-003" },
-  { month: "April 2024", amount: "$5,750", transactionId: "TXN-2024-004" },
-  { month: "May 2024", amount: "$6,000", transactionId: "TXN-2024-005" },
-  { month: "June 2024", amount: "$6,000", transactionId: "TXN-2024-006" },
-  { month: "July 2024", amount: "$6,250", transactionId: "TXN-2024-007" },
-  { month: "August 2024", amount: "$6,250", transactionId: "TXN-2024-008" },
+const paymentData = [
+  { month: "January", year:"2024", amount: "$5,500", transactionId: "TXN-2024-001" },
+  { month: "February", year: "2024", amount: "$5,500", transactionId: "TXN-2024-002" },
+  { month: "March ", year: "2024", amount: "$5,750", transactionId: "TXN-2024-003" },
+  { month: "April ", year: "2024", amount: "$5,750", transactionId: "TXN-2024-004" },
+  { month: "May ", year: "2024", amount: "$6,000", transactionId: "TXN-2024-005" },
+  { month: "June ", year: "2024", amount: "$6,000", transactionId: "TXN-2024-006" },
+  { month: "July ", year: "2024", amount: "$6,250", transactionId: "TXN-2024-007" },
+  { month: "August", year: "2024", amount: "$6,250", transactionId: "TXN-2024-008" },
 ];
 
 const PAGE_SIZE = 5;
 
 const PaymentHistory = () => {
-  const [payments, setPayments] = useState(initialData);
+  const [payments, setPayments] = useState(paymentData);
   const [page, setPage] = useState(1);
 
   const totalPages = Math.ceil(payments.length / PAGE_SIZE);
@@ -49,7 +49,12 @@ const PaymentHistory = () => {
               <tr>
                 <th className="p-3 text-left">
                   <div className="flex items-center gap-1">
-                    Month, Year <ArrowUpDown className="w-4 h-4 opacity-50" />
+                    Month <ArrowUpDown className="w-4 h-4 opacity-50" />
+                  </div>
+                </th>
+                <th className="p-3 text-left">
+                  <div className="flex items-center gap-1">
+                    Year <ArrowUpDown className="w-4 h-4 opacity-50" />
                   </div>
                 </th>
                 <th className="p-3 text-left">
@@ -63,23 +68,15 @@ const PaymentHistory = () => {
                     <ArrowUpDown className="w-4 h-4 opacity-50" />
                   </div>
                 </th>
-                <th className="p-3 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               {paginated.map((payment, idx) => (
                 <tr key={idx} className="border-t">
                   <td className="p-3">{payment.month}</td>
+                  <td className="p-3">{payment.year}</td>
                   <td className="p-3">{payment.amount}</td>
                   <td className="p-3">{payment.transactionId}</td>
-                  <td className="p-3">
-                    <button
-                      onClick={() => deletePayment(idx)}
-                      className="text-red-500 text-lg cursor-pointer "
-                    >
-                      ❌
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>
