@@ -20,6 +20,8 @@ import PaymentHistory from "../pages/EmployeeDashboard/PaymentHistory";
 import WorkSheet from "../pages/EmployeeDashboard/WorkSheet";
 import EmployeeDetails from "../pages/HrDashboard/EmployeeDetails";
 import DashboardRedirect from "../pages/DashboardRedirect";
+import PaymentForm from "../stripe/PaymentForm";
+import StripeProvider from "../stripe/StripeProvider";
 
 const router = createBrowserRouter([
   {
@@ -75,7 +77,7 @@ const router = createBrowserRouter([
         path: "/dashboard/payroll",
         element: (
           <AdminRoute>
-            <Payroll />
+            <StripeProvider><Payroll /></StripeProvider>
           </AdminRoute>
         ),
       },

@@ -6,6 +6,9 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY); 
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = process.env.MONGODB_URL;
 
@@ -199,9 +202,10 @@ async function run() {
     // });
 
     // Make payment as paid from admin
+    
     app.patch("/payroll/:id", async (req, res) => {
       const { id } = req.params;
-      const { isPaid, employee_id } = req.body;
+      const { isPaid, employee_id,transactionId } = req.body;
 
       const currentTime = new Date().toLocaleDateString("en-US");
 
@@ -210,7 +214,9 @@ async function run() {
 
         const result = await paymentsCollection.updateOne(
           { _id: new ObjectId(id) },
-          { $set: { isPaid, payment_date: currentTime } }
+          {
+            $set: {
+              isPaid, payment_date: currentTime, transactionId: transactionId } }
         );
 
         res.send({
@@ -333,6 +339,25 @@ async function run() {
       const query = { employee_email: email, isPaid: true };
       const history = await paymentsCollection.find(query).toArray();
       res.send(history.reverse());
+    });
+    //STRIPE PAYMENT
+    app.post('/create-payment-intent', async (req, res) => {
+      const { amount } = req.body;
+
+      try {
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amount * 100, // Stripe uses cents
+          currency: 'usd',
+          payment_method_types: ['card'],
+        });
+
+        res.send({
+          clientSecret: paymentIntent.client_secret,
+        });
+      } catch (error) {
+        console.error('Error creating payment intent:', error);
+        res.status(500).json({ error: error.message });
+      }
     });
 
     // Send a ping to confirm a successful connection
